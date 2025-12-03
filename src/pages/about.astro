@@ -4,7 +4,75 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout title="About | Conscious Form">
   <section class="max-w-4xl mx-auto px-4 py-16">
-    <h1 class="text-4xl font-bold mb-8">About</h1>
-    <p class="text-neutral-400">Bio and background coming soon...</p>
+    
+    {/* Header with optional photo */}
+    <div class="flex flex-col md:flex-row gap-8 mb-12">
+      
+      {/* Photo - replace src with your actual photo */}
+      <div class="w-48 h-48 rounded-full overflow-hidden bg-neutral-800 flex-shrink-0 mx-auto md:mx-0">
+        <img 
+          src="/images/headshot.jpg" 
+          alt="Darren Woodland, Jr."
+          class="w-full h-full object-cover"
+        />
+        {/* If no photo yet, comment out img and uncomment below */}
+        {/* <div class="w-full h-full flex items-center justify-center text-neutral-600">Photo</div> */}
+      </div>
+      
+      {/* Intro */}
+      <div>
+        <h1 class="text-4xl font-bold mb-4">Darren Woodland, Jr.</h1>
+        <p class="text-xl text-neutral-400 mb-4">
+          Research-Creation · Sound · Physical Computing · Speculative Design
+        </p>
+        <p class="text-neutral-300 leading-relaxed">
+          I am a experimental media artist, designer, and cross-disciplinary researcher working at the intersection of immersive sound, 
+          physical computing, and speculative design. My work explores the relationships 
+          between Black identity, technology, and embodied experience.
+        </p>
+      </div>
+    </div>
+
+    {/* Bio sections */}
+    <div class="space-y-8 text-neutral-300 leading-relaxed">
+      
+      <div>
+        <h2 class="text-2xl font-semibold text-white mb-4">Background</h2>
+        <p class="mb-4">
+          My research-creation practice investigates the sonic, material, and speculative 
+          dimensions of Black experience mediated by technologies; 
+          as a means to embed alternative epistemologies into technology as procedural habits thorugh modification of the design and process. 
+          Through projects and explorations 
+          of Afrofuturist narratives, I create work that bridges historical inquiry with 
+          technological experimentation.
+        </p>
+        <p>
+          I work across disciplines including 3D content and simulation, AR/VR, interactive 
+          media, sound design, game design, and physical computing.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-semibold text-white mb-4">Research Interests</h2>
+        <ul class="list-disc list-inside space-y-2 text-neutral-400">
+          <li>Speculative design and Afrofuturism</li>
+          <li>Sound as material and cultural practice</li>
+          <li>Physical computing and embodied interaction</li>
+          <li>Black identity and technology</li>
+          <li>Research-creation methodologies</li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-semibold text-white mb-4">Contact</h2>
+        <p class="text-neutral-400">
+          <a href="mailto:dkw34@drexel.edu" class="text-blue-400 hover:text-blue-300 transition-colors">
+            dkw34@drexel.edu
+          </a>
+        </p>
+        {/* Add social links as needed */}
+      </div>
+
+    </div>
   </section>
 </BaseLayout>

@@ -4,6 +4,7 @@ const navLinks = [
   { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'About' },
   { href: '/cv', label: 'CV' },
+  { href: '/resume', label: 'Resume' },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -14,11 +15,10 @@ const currentPath = Astro.url.pathname;
     <a href="/" class="text-xl font-bold hover:text-neutral-300 transition-colors">
       Conscious Form
     </a>
-    
     <ul class="flex gap-6">
       {navLinks.map(link => (
         <li>
-          <a 
+          <a
             href={link.href}
             class:list={[
               'hover:text-neutral-300 transition-colors',
