@@ -1,16 +1,14 @@
 ---
-
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Darren Woodland, Jr. | Research-Creation">
+  <section class="max-w-4xl mx-auto px-4 py-16">
+    <h1 class="text-4xl font-bold mb-4">Darren Woodland, Jr.</h1>
+    <p class="text-xl text-neutral-400 mb-8">
+      Cross-disciplinary researcher working at the intersection of
+      immersive sound, physical computing, and speculative design.
+    </p>
+    <!-- Featured projects will go here -->
+  </section>
+</BaseLayout>
