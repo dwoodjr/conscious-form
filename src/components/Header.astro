@@ -1,10 +1,12 @@
 ---
+import AccentDots from './AccentDots.astro';
+
 const navLinks = [
-  { href: '/', label: 'Home' },
   { href: '/projects', label: 'Projects' },
+  { href: '/sketchbook', label: 'Sketchbook' },
+  { href: '/blog', label: 'Blog' },
   { href: '/about', label: 'About' },
   { href: '/cv', label: 'CV' },
-  { href: '/resume', label: 'Resume' },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -12,17 +14,23 @@ const currentPath = Astro.url.pathname;
 
 <header class="border-b border-neutral-800">
   <nav class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-    <a href="/" class="text-xl font-bold hover:text-neutral-300 transition-colors">
-      Conscious Form
+    
+    {/* Logo with accent dots */}
+    <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+      <AccentDots />
+      <span class="text-xl font-bold">Conscious Form</span>
     </a>
+    
     <ul class="flex gap-6">
       {navLinks.map(link => (
         <li>
-          <a
+          <a 
             href={link.href}
             class:list={[
               'hover:text-neutral-300 transition-colors',
-              currentPath === link.href ? 'text-white' : 'text-neutral-400'
+              currentPath === link.href || currentPath.startsWith(link.href + '/') 
+                ? 'text-white' 
+                : 'text-neutral-400'
             ]}
           >
             {link.label}

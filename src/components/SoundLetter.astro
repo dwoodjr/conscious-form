@@ -1,0 +1,24 @@
+---
+interface Props {
+  letter: string;
+  color: string;
+  frequency: number;
+}
+
+const { letter, color, frequency } = Astro.props;
+---
+
+<span 
+  class="sound-letter cursor-pointer transition-all duration-300 hover:scale-110"
+  data-frequency={frequency}
+  data-color={color}
+  style={`--hover-color: ${color};`}
+>
+  {letter}
+</span>
+
+<style>
+  .sound-letter:hover {
+    color: var(--hover-color);
+  }
+</style>

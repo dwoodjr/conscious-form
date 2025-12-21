@@ -17,8 +17,13 @@ const { title, description = "Research-Creation Portfolio" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title}</title>
+
+      <!-- Google Fonts -->
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Linefont&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-neutral-950 text-neutral-100 min-h-screen">
+  <body class="bg-neutral-950 text-neutral-100 min-h-screen font-sans">
     <Header />
       
     <main>

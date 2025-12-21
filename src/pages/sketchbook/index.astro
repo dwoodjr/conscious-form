@@ -1,0 +1,423 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const sketchbookItems = await getCollection('sketchbook');
+
+const sortedItems = sketchbookItems.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+
+function getDotColor(item: CollectionEntry<'sketchbook'>) {
+  const tags = item.data.tags || [];
+  if (tags.some(t => ['sound', 'audio', 'synthesis', 'max'].includes(t))) return 'red';
+  if (tags.some(t => ['animation', '3d', 'visual', 'houdini', 'video'].includes(t))) return 'yellow';
+  if (tags.some(t => ['code', 'patch', 'interactive', 'web'].includes(t))) return 'blue';
+  return 'white';
+}
+
+function getDotSize(index: number, total: number) {
+  if (index < 3) return 'large';   // First 3 = large
+  if (index < 8) return 'medium';  // Next 5 = medium
+  return 'small';                  // Rest = small
+}
+
+function getMediaType(item: CollectionEntry<'sketchbook'>) {
+  if (item.data.audioPreview) return 'audio';
+  if (item.data.videoPreview) return 'video';
+  return 'none';
+}
+
+// Generate organic positioning (scattered)
+function getOrganicPosition(index: number, total: number) {
+  const seed = index * 2654435761;
+  const random = (seed % 100) / 100;
+  
+  const cols = 6;
+  const col = index % cols;
+  const row = Math.floor(index / cols);
+  
+  const baseX = (col / cols) * 90 + 5;
+  const baseY = row * 20 + 15;
+  
+  const offsetX = (random - 0.5) * 15;
+  const offsetY = ((seed % 100) / 100 - 0.5) * 12;
+  
+  const finalX = Math.max(8, Math.min(92, baseX + offsetX));
+  const finalY = Math.max(12, baseY + offsetY);
+  
+  return {
+    left: `${finalX}%`,
+    top: `${finalY}vh`,
+    // Add numeric versions for SVG
+    leftNum: finalX,
+    topNum: finalY,
+  };
+}
+---
+
+<BaseLayout title="Sketchbook | Conscious Form">
+  <section class="max-w-7xl mx-auto px-4 py-16">
+    
+    <h1 class="text-4xl font-bold mb-4">Sketchbook</h1>
+    <p class="text-neutral-400 mb-12">
+      Experiments, explorations, and ephemera — hover to experience.
+    </p>
+
+    <!-- Organic dot field -->
+    <div class="dot-field">
+
+      {/* Canvas for connection lines */}
+      <canvas id="connection-canvas" class="connection-canvas"></canvas>
+
+      {/* Sketch dots */}  
+      {sortedItems.map((item, index) => {
+        const color = getDotColor(item);
+        const size = getDotSize(index, sortedItems.length);
+        const mediaType = getMediaType(item);
+        const position = getOrganicPosition(index, sortedItems.length);
+        
+        return (
+            <a 
+            href={`/sketchbook/${item.slug}`}
+            class={`sketch-dot sketch-dot-${size} sketch-dot-${color}`}
+            style={`left: ${position.left}; top: ${position.top};`}
+            data-title={item.data.title}
+            data-thumbnail={item.data.thumbnail}
+            data-media-type={mediaType}
+            data-audio={item.data.audioPreview}
+            data-video={item.data.videoPreview}
+            data-related={item.data.relatedTo?.join(',')}
+            >
+            {/* Thumbnail background (hidden by default) */}
+            {item.data.thumbnail && (
+              <span 
+                class="dot-thumbnail" 
+                style={`background-image: url(${item.data.thumbnail});`}
+              ></span>
+            )}
+            
+            {/* Video element (added by JS if needed) */}
+            
+            <span class="sr-only">{item.data.title}</span>
+          </a>
+        );
+      })}
+    </div>
+
+  </section>
+</BaseLayout>
+
+<style>
+    /* Connection lines canvas styling */
+    .connection-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    }
+
+    /* Highlight connected lines on dot hover */
+    .sketch-dot:hover {
+    opacity: 1;
+    transform: scale(1.3);
+    z-index: 10;
+    border-width: 4px;
+    }
+    .dot-field {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    padding: 4rem 2rem 8rem 2rem; /* Extra bottom padding for labels */
+    margin-top: 2rem;
+    }
+  
+    .sketch-dot {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid var(--dot-color);
+    background: transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.9;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+  
+  /* Size variants */
+  .sketch-dot-large { 
+    width: 80px; 
+    height: 80px;
+  }
+  
+  .sketch-dot-medium { 
+    width: 60px; 
+    height: 60px;
+  }
+  
+  .sketch-dot-small { 
+    width: 40px; 
+    height: 40px;
+  }
+  
+    /* Color assignments (border colors) */
+    .sketch-dot-red { --dot-color: #E63946; }
+    .sketch-dot-yellow { --dot-color: #F4D03F; }
+    .sketch-dot-blue { --dot-color: #3B82F6; }
+    .sketch-dot-white { --dot-color: #fafafa; }
+
+  
+    /* Thumbnail inside dot (ALWAYS visible) */
+    .dot-thumbnail {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+    border-radius: 50%; /* Add this to keep it circular */
+    }
+  
+    /* Hover states */
+    .sketch-dot:hover {
+    opacity: 1;
+    transform: scale(1.3);
+    z-index: 10;
+    border-width: 4px;
+    }
+
+    .sketch-dot:hover .dot-thumbnail {
+    opacity: 1;
+    }
+  
+    /* Title - ALWAYS visible below dot */
+    .sketch-dot::after {
+    content: attr(data-title);
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color:  #a3a3a3; /* Lighter gray */
+    pointer-events: none;
+    z-index: 2;
+    text-align: center;
+    max-width: 200px;
+    line-height: 1.2;
+    }
+
+    .sketch-dot:hover::after {
+    color: #ffffff;
+    font-weight: 500;
+    }
+  
+    /* Video element styling */
+    .dot-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+    }
+  
+  .dot-video.show {
+    opacity: 1;
+  }
+  
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>
+
+{/* Script to handle audio/video previews on hover */}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const dots = document.querySelectorAll('.sketch-dot');
+    let currentAudio: HTMLAudioElement | null = null;
+    let currentVideo: HTMLVideoElement | null = null;
+    
+    function cleanupMedia() {
+      // Stop audio
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
+      
+      // Stop and remove video
+      if (currentVideo) {
+        currentVideo.pause();
+        currentVideo.currentTime = 0;
+        currentVideo.classList.remove('show');
+        setTimeout(() => {
+          if (currentVideo && currentVideo.parentNode) {
+            currentVideo.parentNode.removeChild(currentVideo);
+          }
+          currentVideo = null;
+        }, 400);
+      }
+    }
+    
+    dots.forEach(dot => {
+      dot.addEventListener('mouseenter', (e) => {
+        const mediaType = dot.getAttribute('data-media-type');
+        const audioSrc = dot.getAttribute('data-audio');
+        const videoSrc = dot.getAttribute('data-video');
+        
+        // Handle audio preview
+        if (mediaType === 'audio' && audioSrc) {
+          currentAudio = new Audio(audioSrc);
+          currentAudio.volume = 0.5;
+          currentAudio.play().catch(err => console.log('Audio play failed:', err));
+        }
+        
+        // Handle video preview - inject into the dot
+        else if (mediaType === 'video' && videoSrc) {
+          currentVideo = document.createElement('video');
+          currentVideo.src = videoSrc;
+          currentVideo.muted = true;
+          currentVideo.loop = true;
+          currentVideo.className = 'dot-video';
+          
+          dot.appendChild(currentVideo);
+          
+          requestAnimationFrame(() => {
+            currentVideo?.classList.add('show');
+            currentVideo?.play().catch(err => console.log('Video play failed:', err));
+          });
+        }
+      });
+      
+      dot.addEventListener('mouseleave', () => {
+        cleanupMedia();
+      });
+    });
+  });
+</script>
+
+{/* Script to draw connection lines between related dots */}
+<script>
+  let currentCanvas: HTMLCanvasElement | null = null;
+  let currentCtx: CanvasRenderingContext2D | null = null;
+  let allDots: NodeListOf<Element> | null = null;
+  
+  function drawConnections(hoveredDot: Element | null = null) {
+    if (!currentCanvas || !currentCtx) return;
+    
+    const container = currentCanvas.parentElement;
+    if (!container) return;
+    
+    // Clear canvas
+    currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
+    
+    if (!allDots) return;
+    
+    // Draw lines between connected dots
+    allDots.forEach(dot => {
+      const relatedTo = dot.getAttribute('data-related');
+      if (!relatedTo) return;
+      
+      const relatedSlugs = relatedTo.split(',');
+      const isHovered = dot === hoveredDot;
+      
+      // Get this dot's center position
+      const fromRect = dot.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const fromX = fromRect.left - containerRect.left + fromRect.width / 2;
+      const fromY = fromRect.top - containerRect.top + fromRect.height / 2;
+      
+      relatedSlugs.forEach(slug => {
+        // Find the related dot
+        const relatedDot = Array.from(allDots!).find(d => 
+          d.getAttribute('href')?.includes(slug.trim())
+        );
+        
+        if (!relatedDot) return;
+        
+        const isRelatedHovered = relatedDot === hoveredDot;
+        
+        // Get related dot's center position
+        const toRect = relatedDot.getBoundingClientRect();
+        const toX = toRect.left - containerRect.left + toRect.width / 2;
+        const toY = toRect.top - containerRect.top + toRect.height / 2;
+        
+        // Draw line with different opacity based on hover state
+        currentCtx!.beginPath();
+        currentCtx!.moveTo(fromX, fromY);
+        currentCtx!.lineTo(toX, toY);
+        
+        // White color, brighter when connected dot is hovered
+        if (isHovered || isRelatedHovered) {
+          currentCtx!.strokeStyle = 'rgba(255, 255, 255, 0.8)'; // Bright white on hover
+          currentCtx!.lineWidth = 2;
+        } else {
+          currentCtx!.strokeStyle = 'rgba(255, 255, 255, 0.3)'; // Subtle white default
+          currentCtx!.lineWidth = 1;
+        }
+        
+        currentCtx!.stroke();
+      });
+    });
+  }
+  
+  function initializeCanvas() {
+    currentCanvas = document.getElementById('connection-canvas') as HTMLCanvasElement;
+    if (!currentCanvas) return;
+    
+    currentCtx = currentCanvas.getContext('2d');
+    if (!currentCtx) return;
+    
+    const container = currentCanvas.parentElement;
+    if (!container) return;
+    
+    // Set canvas size
+    currentCanvas.width = container.offsetWidth;
+    currentCanvas.height = container.offsetHeight;
+    
+    // Get all dots
+    allDots = document.querySelectorAll('.sketch-dot');
+    
+    // Add hover listeners to dots
+    allDots.forEach(dot => {
+      dot.addEventListener('mouseenter', () => {
+        drawConnections(dot);
+      });
+      
+      dot.addEventListener('mouseleave', () => {
+        drawConnections(null);
+      });
+    });
+    
+    // Initial draw
+    drawConnections();
+  }
+  
+  function handleResize() {
+    if (!currentCanvas || !currentCanvas.parentElement) return;
+    currentCanvas.width = currentCanvas.parentElement.offsetWidth;
+    currentCanvas.height = currentCanvas.parentElement.offsetHeight;
+    drawConnections();
+  }
+  
+  // Initialize on load
+  window.addEventListener('load', initializeCanvas);
+  window.addEventListener('resize', handleResize);
+</script>

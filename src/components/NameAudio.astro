@@ -1,0 +1,145 @@
+---
+// This component just holds the script for audio functionality
+---
+
+<script>
+  // Initialize audio context on first user interaction
+  let audioContext: AudioContext | null = null;
+
+  function getAudioContext(): AudioContext {
+    if (!audioContext) {
+      audioContext = new AudioContext();
+    }
+    return audioContext;
+  }
+
+  // ADSR Envelope Parameters (in seconds)
+  const envelope = {
+    attack: 0.005,    // Time to reach peak
+    decay: 0.3,      // Time to fall to sustain level
+    sustain: 0.8,    // Sustain level (0-1, relative to peak)
+    release: 0.5,    // Time to fade to silence
+    peak: 0.12,      // Maximum volume
+  };
+
+  function playTone(frequency: number) {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    
+    // Create oscillator
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    // Connect nodes
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    // Set oscillator properties
+    oscillator.type = 'triangle';  // Warmer, jazzy tone
+    oscillator.frequency.setValueAtTime(frequency, now);
+    
+    // ADSR Envelope
+    const { attack, decay, sustain, release, peak } = envelope;
+    const sustainLevel = peak * sustain;
+    
+    // Start at zero
+    gainNode.gain.setValueAtTime(0, now);
+    
+    // Attack: ramp up to peak
+    gainNode.gain.linearRampToValueAtTime(peak, now + attack);
+    
+    // Decay: fall to sustain level
+    gainNode.gain.linearRampToValueAtTime(sustainLevel, now + attack + decay);
+    
+    // Sustain: hold (implicit - just stays at sustainLevel)
+    // We'll hold briefly then release
+    const sustainTime = 0.1;
+    gainNode.gain.setValueAtTime(sustainLevel, now + attack + decay + sustainTime);
+    
+    // Release: fade to zero
+    gainNode.gain.linearRampToValueAtTime(0, now + attack + decay + sustainTime + release);
+    
+    // Calculate total duration
+    const totalDuration = attack + decay + sustainTime + release;
+    
+    // Play
+    oscillator.start(now);
+    oscillator.stop(now + totalDuration);
+  }
+
+  function triggerLetterAnimation(element: Element) {
+    const letter = element.textContent;
+    const color = element.getAttribute('data-color') || '#ffffff';
+    
+    // Add active class for scale/color
+    element.classList.add('active');
+    
+    // Create ghosted letter popup
+    const ghost = document.createElement('div');
+    ghost.className = 'ghost-letter';
+    ghost.textContent = letter;
+    ghost.style.color = color;
+    
+    // Position above the dot
+    const rect = element.getBoundingClientRect();
+    ghost.style.left = `${rect.left + rect.width / 2}px`;
+    ghost.style.top = `${rect.top - 50}px`;
+    
+    document.body.appendChild(ghost);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+      ghost.classList.add('show');
+    });
+    
+    // Remove after animation
+    setTimeout(() => {
+      ghost.remove();
+    }, 400);
+    
+    // Remove active class after animation
+    setTimeout(() => {
+      element.classList.remove('active');
+    }, 200);
+  }
+
+  // Attach event listeners to all sound letters
+  document.addEventListener('DOMContentLoaded', () => {
+    const letters = document.querySelectorAll('.sound-letter');
+    
+    letters.forEach(letter => {
+      letter.addEventListener('mouseenter', () => {
+        const frequency = parseFloat(letter.getAttribute('data-frequency') || '440');
+        playTone(frequency);
+        triggerLetterAnimation(letter);
+      });
+    });
+  });
+</script>
+
+<style is:global>
+  /* Active state for instant visual feedback */
+  .sound-letter.active {
+    transform: scale(1.1);
+    color: var(--hover-color);
+    transition: transform 0.1s ease-out, color 0.1s ease-out;
+  }
+  
+  /* Ghost letter popup */
+  .ghost-letter {
+    position: fixed;
+    font-family: 'Inter', sans-serif;
+    font-size: 3rem;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(0) translateX(-50%);
+    pointer-events: none;
+    z-index: 1000;
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  }
+  
+  .ghost-letter.show {
+    opacity: 0.6;
+    transform: translateY(300px) translateX(-50%);
+  }
+</style>

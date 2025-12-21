@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const sketchbookItems = await getCollection('sketchbook');
+  return sketchbookItems.map(item => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const { Content } = await item.render();
+---
+
+<BaseLayout title={`${item.data.title} | Sketchbook`} description={item.data.description}>
+  <article class="max-w-4xl mx-auto px-4 py-16">
+    
+    <header class="mb-8">
+      <a href="/sketchbook" class="text-neutral-400 hover:text-white transition-colors mb-4 inline-block">
+        ← Back to Sketchbook
+      </a>
+      
+      <h1 class="text-4xl font-bold mb-4">{item.data.title}</h1>
+      <p class="text-xl text-neutral-400 mb-4">{item.data.description}</p>
+      
+      <div class="flex gap-2 mb-6">
+        {item.data.tags.map(tag => (
+          <span class="text-sm bg-neutral-800 px-2 py-1 rounded">{tag}</span>
+        ))}
+      </div>
+      
+      <time class="text-sm text-neutral-500">
+        {new Date(item.data.date).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}
+      </time>
+    </header>
+
+    {/* Thumbnail if available */}
+    {item.data.thumbnail && (
+      <div class="mb-8">
+        <img 
+          src={item.data.thumbnail} 
+          alt={item.data.title}
+          class="w-full rounded-lg"
+        />
+      </div>
+    )}
+
+    {/* Audio player if available */}
+    {item.data.audioPreview && (
+      <div class="mb-8">
+        <audio controls class="w-full">
+          <source src={item.data.audioPreview} type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+    )}
+
+    {/* Video player if available */}
+    {item.data.videoPreview && (
+      <div class="mb-8">
+        <video controls class="w-full rounded-lg">
+          <source src={item.data.videoPreview} type="video/mp4" />
+          Your browser does not support the video element.
+        </video>
+      </div>
+    )}
+
+    {/* Markdown content */}
+    <div class="markdown-content">
+      <Content />
+    </div>
+    
+  </article>
+</BaseLayout>

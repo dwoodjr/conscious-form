@@ -2,33 +2,68 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="CV | Conscious Form">
+<BaseLayout title="CV & Resume | Conscious Form">
   <section class="max-w-4xl mx-auto px-4 py-16">
     
-    <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
-      <h1 class="text-4xl font-bold">Curriculum Vitae</h1>
-      <div class="flex gap-3">
+    <h1 class="text-4xl font-bold mb-8">CV & Resume</h1>
+
+    {/* Two column layout for downloads */}
+    <div class="grid md:grid-cols-2 gap-6 mb-12">
+      
+      {/* CV Card */}
+      <div class="border border-neutral-800 rounded-lg p-6 hover:border-neutral-600 transition-colors">
+        <h2 class="text-2xl font-semibold mb-2">Curriculum Vitae</h2>
+        <p class="text-neutral-400 mb-4">
+          Complete academic and professional history, publications, exhibitions, and presentations.
+        </p>
         <a 
           href="/documents/cv.pdf" 
           download
-          class="text-sm text-neutral-400 hover:text-white border border-neutral-700 px-4 py-2 rounded hover:border-neutral-500 transition-colors"
+          class="inline-block bg-white text-black px-6 py-3 rounded hover:bg-neutral-200 transition-colors font-medium"
         >
-          Download CV
+          Download CV (PDF)
         </a>
+      </div>
+
+      {/* Resume Card */}
+      <div class="border border-neutral-800 rounded-lg p-6 hover:border-neutral-600 transition-colors">
+        <h2 class="text-2xl font-semibold mb-2">Resume</h2>
+        <p class="text-neutral-400 mb-4">
+          Concise summary of skills, experience, and key accomplishments for industry positions.
+        </p>
+        <a 
+          href="/documents/resume.pdf" 
+          download
+          class="inline-block bg-white text-black px-6 py-3 rounded hover:bg-neutral-200 transition-colors font-medium"
+        >
+          Download Resume (PDF)
+        </a>
+      </div>
+      
+    </div>
+
+    {/* Embedded CV viewer */}
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold mb-4">Preview: Curriculum Vitae</h3>
+      <div class="w-full aspect-[8.5/11] bg-neutral-900 rounded-lg overflow-hidden border border-neutral-800">
+        <iframe 
+          src="/documents/cv.pdf" 
+          class="w-full h-full"
+          title="Curriculum Vitae"
+        />
       </div>
     </div>
 
-    <p class="text-neutral-400 mb-8">
-      For the most up-to-date and fully formatted version, please download the PDF above.
-    </p>
-
-    {/* Embedded PDF viewer */}
-    <div class="w-full aspect-[8.5/11] bg-neutral-900 rounded-lg overflow-hidden border border-neutral-800">
-      <iframe 
-        src="/documents/cv.pdf" 
-        class="w-full h-full"
-        title="Curriculum Vitae"
-      />
+    {/* Embedded Resume viewer */}
+    <div>   
+      <h3 class="text-xl font-semibold mb-4">Preview: Resume</h3>
+      <div class="w-full aspect-[8.5/11] bg-neutral-900 rounded-lg overflow-hidden border border-neutral-800">
+        <iframe 
+          src="/documents/resume.pdf" 
+          class="w-full h-full"
+          title="Resume"
+        />
+      </div>
     </div>
 
   </section>

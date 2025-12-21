@@ -1,14 +1,140 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import AccentDots from '../components/AccentDots.astro';
+import NameAudio from '../components/NameAudio.astro';
+
+// Scale frequencies
+// D, E, F, G, A, B, C across multiple octaves
+const jazzScale = [
+  147,  // D3
+  165,  // E3
+  175,  // F3
+  196,  // G3
+  220,  // A3
+  247,  // B3
+  262,  // C4
+  294,  // D4
+  330,  // E4
+  349,  // F4
+  392,  // G4
+  440,  // A4
+  494,  // B4
+  523,  // C5
+  587,  // D5
+  659,  // E5
+  698,  // F5
+  784,  // G5
+  880,  // A5
+  988,  // B5
+  1047, // C6
+  1175, // D6
+  1319, // E6
+  1397, // F6
+  1568, // G6
+  1760, // A6
+];
+
+// Map letter position (a=0, z=25) to jazz scale frequency
+function getFrequency(letter: string): number {
+  const position = letter.toLowerCase().charCodeAt(0) - 97; // a=0, b=1, ... z=25
+  return jazzScale[position] || 440;
+}
+
+// Build letter arrays with auto-mapped frequencies
+const darren = ['d', 'a', 'r', 'r', 'e', 'n'].map(letter => ({
+  letter,
+  freq: getFrequency(letter)
+}));
+
+const woodland = ['w', 'o', 'o', 'd', 'l', 'a', 'n', 'd'].map(letter => ({
+  letter,
+  freq: getFrequency(letter)
+}));
+
+const jr = ['j', 'r'].map(letter => ({
+  letter,
+  freq: getFrequency(letter)
+}));
+
+const red = '#E63946';
+const yellow = '#F4D03F';
+const blue = '#3B82F6';
 ---
 
-<BaseLayout title="Darren Woodland, Jr. | Research-Creation">
-  <section class="max-w-4xl mx-auto px-4 py-16">
-    <h1 class="text-4xl font-bold mb-4">Darren Woodland, Jr.</h1>
-    <p class="text-xl text-neutral-400 mb-8">
-      Cross-disciplinary researcher working at the intersection of
-      immersive sound, physical computing, and speculative design.
-    </p>
+<BaseLayout title="Darren Woodland, Jr. | Conscious Form">
+  <section class="min-h-screen relative">
+
+    <!-- MASSIVE name - centered -->
+    <div class="min-h-screen flex items-center justify-center">
+      <h1 class="font-display text-[30vw] leading-none tracking-tighter flex gap-[2vw] pb-80">
+        
+        <!-- darren -->
+        {darren.map(({ letter, freq }) => (
+          <span 
+            class="sound-letter cursor-pointer"
+            data-frequency={freq}
+            data-color={red}
+            style={`--hover-color: ${red};`}
+          >
+            {letter}
+          </span>
+        ))}
+
+        <!-- woodland -->
+        {woodland.map(({ letter, freq }) => (
+          <span 
+            class="sound-letter cursor-pointer"
+            data-frequency={freq}
+            data-color={yellow}
+            style={`--hover-color: ${yellow};`}
+          >
+            {letter}
+          </span>
+        ))}
+
+        <!-- jr -->
+        {jr.map(({ letter, freq }) => (
+          <span 
+            class="sound-letter cursor-pointer"
+            data-frequency={freq}
+            data-color={blue}
+            style={`--hover-color: ${blue};`}
+          >
+            {letter}
+          </span>
+        ))}
+
+      </h1>
+    </div>
+
+
+      <!-- Subtitle below initials -->
+    <div class="text-center mb-16">
+      <h2 class="text-3xl text-neutral-400 mb-4">Darren Woodland, Jr.</h2>
+      <p class="text-xl text-neutral-400 mb-8 max-w-2xl mx-auto">
+        Cross-disciplinary researcher working at the intersection of
+        immersive sound, physical computing, and speculative design.
+      </p>
+      
+      <!-- Dots at bottom -->
+      <div class="flex justify-center mt-6">
+        <AccentDots />
+      </div>
+    </div>
+
     <!-- Featured projects will go here -->
   </section>
+    <!-- Audio functionality -->
+  <NameAudio />
 </BaseLayout>
+
+<style>
+  .sound-letter {
+    transition: none; /* JS handles animations*/
+    display: inline-block;
+  }
+  
+  .sound-letter:hover {
+    color: var(--hover-color);
+  }
+</style>
