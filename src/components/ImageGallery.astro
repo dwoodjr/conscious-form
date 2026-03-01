@@ -1,0 +1,354 @@
+---
+interface Props {
+  images: string[];
+  title?: string;
+}
+
+const { images, title = '' } = Astro.props;
+if (!images || images.length === 0) return;
+
+const galleryId = `gallery-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<!-- Masonry-style grid -->
+<div class="gallery-grid" id={galleryId}>
+  {images.map((img, i) => (
+    <button
+      class="gallery-item"
+      data-index={i}
+      data-src={img}
+      aria-label={`View ${title} image ${i + 1}`}
+    >
+      <img
+        src={img}
+        alt={`${title} - ${i + 1}`}
+        loading="lazy"
+        class="gallery-thumb-img"
+      />
+    </button>
+  ))}
+</div>
+
+<!-- Lightbox overlay -->
+<div class="lightbox" id={`${galleryId}-lightbox`} role="dialog" aria-modal="true">
+  <div class="lightbox-backdrop"></div>
+
+  <div class="lightbox-content">
+
+    <!-- Close button -->
+    <button class="lightbox-close" aria-label="Close">✕</button>
+
+    <!-- Main image - natural ratio -->
+    <div class="lightbox-img-wrap">
+      <img
+        src=""
+        alt=""
+        class="lightbox-img"
+        id={`${galleryId}-lightbox-img`}
+      />
+    </div>
+
+    <!-- Navigation -->
+    <div class="lightbox-nav">
+      <button class="lightbox-prev" aria-label="Previous">‹</button>
+      <span class="lightbox-counter"></span>
+      <button class="lightbox-next" aria-label="Next">›</button>
+    </div>
+
+    <!-- Thumbnail strip inside lightbox -->
+    <div class="lightbox-strip">
+      {images.map((img, i) => (
+        <button
+          class="lightbox-strip-thumb"
+          data-index={i}
+          data-src={img}
+          aria-label={`Go to image ${i + 1}`}
+        >
+          <img
+            src={img}
+            alt={`${title} - thumbnail ${i + 1}`}
+            loading="lazy"
+            class="w-full h-full object-cover pointer-events-none"
+          />
+        </button>
+      ))}
+    </div>
+
+  </div>
+</div>
+
+<script define:vars={{ galleryId, images, title }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const container   = document.getElementById(galleryId);
+    const lightbox    = document.getElementById(`${galleryId}-lightbox`);
+    if (!container || !lightbox) return;
+
+    const mainImg     = document.getElementById(`${galleryId}-lightbox-img`);
+    const counter     = lightbox.querySelector('.lightbox-counter');
+    const backdrop    = lightbox.querySelector('.lightbox-backdrop');
+    const closeBtn    = lightbox.querySelector('.lightbox-close');
+    const prevBtn     = lightbox.querySelector('.lightbox-prev');
+    const nextBtn     = lightbox.querySelector('.lightbox-next');
+    const stripThumbs = lightbox.querySelectorAll('.lightbox-strip-thumb');
+
+    let current = 0;
+
+    function open(index) {
+      current = index;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      update();
+    }
+
+    function close() {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function goTo(index) {
+      if (index < 0) index = images.length - 1;
+      if (index >= images.length) index = 0;
+      current = index;
+      update();
+    }
+
+    function update() {
+      // Fade image transition
+      mainImg.style.opacity = '0';
+      setTimeout(() => {
+        mainImg.src = images[current];
+        mainImg.alt = `${title} - image ${current + 1}`;
+        mainImg.style.opacity = '1';
+      }, 150);
+
+      // Counter
+      if (counter) counter.textContent = `${current + 1} / ${images.length}`;
+
+      // Strip highlights
+      stripThumbs.forEach((t, i) => {
+        t.classList.toggle('active', i === current);
+      });
+
+      // Scroll active thumb into view
+      const activeThumb = lightbox.querySelector('.lightbox-strip-thumb.active');
+      if (activeThumb) {
+        activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+
+    // Grid item clicks → open lightbox
+    container.querySelectorAll('.gallery-item').forEach(item => {
+      item.addEventListener('click', () => {
+        open(parseInt(item.getAttribute('data-index')));
+      });
+    });
+
+    // Strip thumb clicks
+    stripThumbs.forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        goTo(parseInt(thumb.getAttribute('data-index')));
+      });
+    });
+
+    // Controls
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (backdrop) backdrop.addEventListener('click', close);
+    if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('active')) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') goTo(current - 1);
+      if (e.key === 'ArrowRight') goTo(current + 1);
+    });
+  });
+</script>
+
+<style>
+  /* ── Masonry grid ─────────────────────────────── */
+  .gallery-grid {
+    columns: 1;
+    column-gap: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  @media (min-width: 480px) {
+    .gallery-grid { columns: 2; }
+  }
+
+  @media (min-width: 1024px) {
+    .gallery-grid { columns: 3; }
+  }
+
+  .gallery-item {
+    display: block;
+    width: 100%;
+    break-inside: avoid;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease, opacity 0.2s ease;
+    background: transparent;
+    padding: 0;
+  }
+
+  .gallery-item:hover {
+    border-color: #525252;
+    opacity: 0.85;
+  }
+
+  .gallery-thumb-img {
+    width: 100%;
+    height: auto;          /* ← Natural ratio, no cropping */
+    display: block;
+    border-radius: 4px;
+  }
+
+  /* ── Lightbox ─────────────────────────────────── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox.active {
+    display: flex;
+  }
+
+  .lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    cursor: pointer;
+  }
+
+  .lightbox-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 90vw;
+    max-height: 90vh;
+    width: 100%;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: -2.5rem;
+    right: 0;
+    background: none;
+    border: none;
+    color: #a3a3a3;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+
+  .lightbox-close:hover {
+    color: #fff;
+  }
+
+  /* Image wrapper - natural ratio */
+  .lightbox-img-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 90vw;
+    max-height: 70vh;
+  }
+
+  .lightbox-img {
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;           /* ← Natural width */
+    height: auto;          /* ← Natural height */
+    object-fit: contain;   /* ← Never crops */
+    border-radius: 6px;
+    transition: opacity 0.15s ease;
+    display: block;
+  }
+
+  /* Navigation row */
+  .lightbox-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    color: #a3a3a3;
+    font-size: 0.875rem;
+  }
+
+  .lightbox-prev,
+  .lightbox-next {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    font-size: 1.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    line-height: 1;
+  }
+
+  .lightbox-prev:hover,
+  .lightbox-next:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .lightbox-counter {
+    color: #a3a3a3;
+    font-size: 0.875rem;
+    min-width: 4rem;
+    text-align: center;
+  }
+
+  /* Thumbnail strip */
+  .lightbox-strip {
+    display: flex;
+    gap: 0.375rem;
+    overflow-x: auto;
+    margin-top: 0.75rem;
+    padding-bottom: 0.25rem;
+    max-width: 90vw;
+    scrollbar-width: thin;
+    scrollbar-color: #525252 transparent;
+  }
+
+  .lightbox-strip-thumb {
+    flex-shrink: 0;
+    width: 60px;
+    height: 44px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s, border-color 0.2s;
+    padding: 0;
+    background: none;
+  }
+
+  .lightbox-strip-thumb:hover {
+    opacity: 0.8;
+  }
+
+  .lightbox-strip-thumb.active {
+    border-color: #fff;
+    opacity: 1;
+  }
+</style>

@@ -2,11 +2,9 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-// Get both project types
 const researchProjects = await getCollection('projects');
 const collaborations = await getCollection('collaborations');
 
-// Sort both by date
 const sortedResearch = researchProjects.sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
@@ -32,12 +30,16 @@ const sortedCollabs = collaborations.sort(
             href={`/projects/${project.slug}`}
             class="group block border border-neutral-800 rounded-lg overflow-hidden hover:border-neutral-600 transition-colors"
           >
-            <div class="aspect-video bg-neutral-900 overflow-hidden">
-              <img 
-                src={project.data.thumbnail} 
-                alt={project.data.title}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
+            <div class="aspect-video bg-neutral-900 overflow-hidden flex items-center justify-center">
+              {project.data.thumbnail ? (
+                <img 
+                  src={project.data.thumbnail} 
+                  alt={project.data.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <span class="text-neutral-600 text-sm">Image coming soon</span>
+              )}
             </div>
             
             <div class="p-6">
@@ -45,7 +47,6 @@ const sortedCollabs = collaborations.sort(
                 {project.data.title}
               </h2>
               <p class="text-neutral-400 mb-4">{project.data.description}</p>
-              
               <div class="flex flex-wrap gap-2">
                 {project.data.tags.map(tag => (
                   <span class="text-sm bg-neutral-800 px-2 py-1 rounded">{tag}</span>
@@ -70,12 +71,16 @@ const sortedCollabs = collaborations.sort(
             href={`/collaborations/${collab.slug}`}
             class="group block border border-neutral-800 rounded-lg overflow-hidden hover:border-neutral-600 transition-colors"
           >
-            <div class="aspect-video bg-neutral-900 overflow-hidden">
-              <img 
-                src={collab.data.thumbnail} 
-                alt={collab.data.title}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
+            <div class="aspect-video bg-neutral-900 overflow-hidden flex items-center justify-center">
+              {collab.data.thumbnail ? (
+                <img 
+                  src={collab.data.thumbnail} 
+                  alt={collab.data.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <span class="text-neutral-600 text-sm">Image coming soon</span>
+              )}
             </div>
             
             <div class="p-6">
@@ -86,7 +91,6 @@ const sortedCollabs = collaborations.sort(
               <p class="text-sm text-neutral-500 mb-4">
                 {collab.data.partner} · {collab.data.role}
               </p>
-              
               <div class="flex flex-wrap gap-2">
                 {collab.data.tags.map(tag => (
                   <span class="text-sm bg-neutral-800 px-2 py-1 rounded">{tag}</span>

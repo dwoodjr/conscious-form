@@ -1,5 +1,14 @@
 import { defineCollection, z } from 'astro:content';
 
+// Reusable video schema (single video entry)
+const videoSchema = z.object({
+  type: z.enum(['youtube', 'vimeo']),
+  id: z.string(),
+  title: z.string().optional(),
+  start: z.number().optional(),  // seconds
+  end: z.number().optional(),    // seconds
+});
+
 const projects = defineCollection({
   type: 'content',
   schema: z.object({
@@ -7,10 +16,12 @@ const projects = defineCollection({
     description: z.string(),
     date: z.date(),
     tags: z.array(z.string()),
-    thumbnail: z.string(),
+    thumbnail: z.string().optional(),
     featured: z.boolean().default(false),
+    videos: z.array(videoSchema).optional(),      // Multiple videos
+    images: z.array(z.string()).optional(),        // Image gallery paths
     mediaTypes: z.array(z.enum([
-      'sound', '3d', 'video', 'interactive', 
+      'sound', '3d', 'video', 'interactive',
       'physical-computing', 'ar-vr', 'installation'
     ])).optional(),
     status: z.enum(['complete', 'in-progress', 'archived']).default('complete'),
@@ -24,10 +35,12 @@ const collaborations = defineCollection({
     description: z.string(),
     date: z.date(),
     tags: z.array(z.string()),
-    thumbnail: z.string(),
-    partner: z.string(), // "Ars Electronica", "CCD", etc.
-    role: z.string(), // "Art Direction", "Sound Design", etc.
+    thumbnail: z.string().optional(),
+    partner: z.string(),
+    role: z.string(),
     featured: z.boolean().default(false),
+    videos: z.array(videoSchema).optional(),
+    images: z.array(z.string()).optional(),
   }),
 });
 
@@ -40,10 +53,11 @@ const sketchbook = defineCollection({
     tags: z.array(z.string()),
     thumbnail: z.string().optional(),
     type: z.enum(['experiment', 'coursework', 'sketch', 'demo', 'animation']),
-    // New media fields
-    audioPreview: z.string().optional(),  // Path to 2-3 sec audio clip
-    videoPreview: z.string().optional(),  // Path to short video clip
-    relatedTo: z.array(z.string()).optional(), // Related project IDs
+    audioPreview: z.string().optional(),
+    videoPreview: z.string().optional(),
+    videos: z.array(videoSchema).optional(),
+    images: z.array(z.string()).optional(),
+    relatedTo: z.array(z.string()).optional(),
   }),
 });
 
@@ -59,9 +73,9 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { 
-  projects, 
-  collaborations, 
-  sketchbook, 
-  blog 
+export const collections = {
+  projects,
+  collaborations,
+  sketchbook,
+  blog
 };

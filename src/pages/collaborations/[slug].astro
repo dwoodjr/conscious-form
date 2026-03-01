@@ -1,0 +1,94 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import VideoEmbed from '../../components/VideoEmbed.astro';
+import ImageGallery from '../../components/ImageGallery.astro';
+
+export async function getStaticPaths() {
+  const collaborations = await getCollection('collaborations');
+  return collaborations.map(collab => ({
+    params: { slug: collab.slug },
+    props: { collab },
+  }));
+}
+
+const { collab } = Astro.props;
+const { Content } = await collab.render();
+
+const hasVideos = collab.data.videos && collab.data.videos.length > 0;
+const hasImages = collab.data.images && collab.data.images.length > 0;
+---
+
+<BaseLayout
+  title={`${collab.data.title} | Conscious Form`}
+  description={collab.data.description}
+>
+  <article class="max-w-4xl mx-auto px-4 py-16">
+
+    {/* Header */}
+    <header class="mb-8">
+      <a href="/projects" class="text-neutral-400 hover:text-white transition-colors mb-4 inline-block">
+        ← Back to Projects
+      </a>
+      <h1 class="text-4xl font-bold mb-2">{collab.data.title}</h1>
+      <p class="text-lg text-neutral-400 mb-1">{collab.data.partner}</p>
+      <p class="text-sm text-neutral-500 mb-4">{collab.data.role}</p>
+      <p class="text-xl text-neutral-300 mb-6">{collab.data.description}</p>
+
+      <div class="flex flex-wrap gap-2 mb-4">
+        {collab.data.tags.map(tag => (
+          <span class="text-sm bg-neutral-800 px-2 py-1 rounded">{tag}</span>
+        ))}
+      </div>
+
+      <time class="text-sm text-neutral-500">
+        {new Date(collab.data.date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+        })}
+      </time>
+    </header>
+
+    {/* Thumbnail - ALWAYS show */}
+    {collab.data.thumbnail && (
+      <div class="mb-8">
+        <img
+          src={collab.data.thumbnail}
+          alt={collab.data.title}
+          class="w-full rounded-lg object-cover"
+        />
+      </div>
+    )}
+
+    {/* Markdown content */}
+    <div class="prose prose-invert max-w-none mb-12">
+      <Content />
+    </div>
+
+    {/* Videos */}
+    {hasVideos && (
+      <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-6">
+          {collab.data.videos!.length === 1 ? 'Video' : 'Videos'}
+        </h2>
+        {collab.data.videos!.map((video, i) => (
+          <div class="mb-4">
+            {video.title && (
+              <p class="text-neutral-400 text-sm mb-2">{video.title}</p>
+            )}
+            <VideoEmbed video={video} index={i} />
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Image Gallery */}
+    {hasImages && (
+      <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-6">Documentation</h2>
+        <ImageGallery images={collab.data.images!} title={collab.data.title} />
+      </div>
+    )}
+
+  </article>
+</BaseLayout>

@@ -1,0 +1,75 @@
+---
+interface Video {
+  type: 'youtube' | 'vimeo';
+  id: string;
+  title?: string;
+  start?: number;
+  end?: number;
+}
+
+interface Props {
+  video: Video;
+  index?: number; // Used to generate unique iframe IDs
+}
+
+const { video, index = 0 } = Astro.props;
+const embedId = `video-embed-${index}-${video.id}`;
+
+function buildVimeoUrl(id: string, start?: number): string {
+  let url = `https://player.vimeo.com/video/${id}?color=ffffff&title=0&byline=0&portrait=0`;
+  if (start) url += `#t=${start}s`;
+  return url;
+}
+
+function buildYouTubeUrl(id: string, start?: number, end?: number): string {
+  let url = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`;
+  if (start) url += `&start=${start}`;
+  if (end) url += `&end=${end}`;
+  return url;
+}
+---
+
+<div class="aspect-video w-full max-w-full block rounded-lg overflow-hidden mb-6 bg-neutral-900">
+  {video.type === 'vimeo' && (
+    <iframe
+      id={embedId}
+      src={buildVimeoUrl(video.id, video.start)}
+      class="w-full h-full"
+      frameborder="0"
+      allow="autoplay; fullscreen; picture-in-picture"
+      allowfullscreen
+      title={video.title || 'Video'}
+    />
+  )}
+
+  {video.type === 'youtube' && (
+    <iframe
+      id={embedId}
+      src={buildYouTubeUrl(video.id, video.start, video.end)}
+      class="w-full h-full"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+      title={video.title || 'Video'}
+    />
+  )}
+</div>
+
+{/* Vimeo end-time via JS SDK */}
+{video.type === 'vimeo' && video.end && (
+  <script src="https://player.vimeo.com/api/player.js" is:inline></script>
+  <script define:vars={{ embedId, vimeoEnd: video.end }}>
+    document.addEventListener('DOMContentLoaded', () => {
+      const iframe = document.getElementById(embedId);
+      if (!iframe || !window.Vimeo) return;
+      const player = new window.Vimeo.Player(iframe);
+      function checkTime() {
+        player.getCurrentTime().then(function(time) {
+          if (time >= vimeoEnd) player.pause();
+        });
+        setTimeout(checkTime, 1000);
+      }
+      player.on('play', function() { checkTime(); });
+    });
+  </script>
+)}

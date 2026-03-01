@@ -1,0 +1,22 @@
+---
+title: "Selected Animated Works 2022-2024"
+description: "A collection of animations and simulations created with Houdini and Unreal Engine."
+date: 2024-06-01
+tags: ["animation", "3d", "houdini", "unreal", "simulation", "visual"]
+type: "animation"
+thumbnail: "/images/sketchbook/animated-works-thumb.jpg"
+---
+
+## Overview
+
+A selection of animations and simulations produced between 2022-2024 using Houdini and Unreal Engine.
+
+## Tools & Technologies
+
+- Houdini (FX, simulation, procedural animation)
+- Unreal Engine (real-time rendering, environments)
+- Unity
+- Art Direction
+- Character Modeling
+- Sound Design
+- Audio Implementation
