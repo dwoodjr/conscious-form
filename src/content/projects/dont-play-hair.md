@@ -3,10 +3,11 @@ title: "Don't Play with My Hair"
 description: "A speculative organic synthesizer whose parameters arise from the structure, form, and materiality of hair."
 date: 2025-08-15
 tags: ["sound", "physical-computing", "speculative-design", "identity"]
-thumbnail: "/images/projects/hair-synth-thumb.jpg"
+thumbnail: "/images/projects/dont-play-hair/hair-synth-thumb.jpg"
 featured: true
 mediaTypes: ["sound", "physical-computing", "interactive"]
 status: "in-progress"
+dissertation: true
 ---
 
 ## Overview

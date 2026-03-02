@@ -4,6 +4,7 @@ import { defineCollection, z } from 'astro:content';
 const videoSchema = z.object({
   type: z.enum(['youtube', 'vimeo']),
   id: z.string(),
+  hash: z.string().optional(),   // Vimeo unlisted video hash
   title: z.string().optional(),
   start: z.number().optional(),  // seconds
   end: z.number().optional(),    // seconds
@@ -25,6 +26,11 @@ const projects = defineCollection({
       'physical-computing', 'ar-vr', 'installation'
     ])).optional(),
     status: z.enum(['complete', 'in-progress', 'archived']).default('complete'),
+    dissertation: z.boolean().default(false),
+    imageCredit: z.object({
+      name: z.string(),
+      url: z.string().optional(),
+    }).optional(),
   }),
 });
 
@@ -41,6 +47,10 @@ const collaborations = defineCollection({
     featured: z.boolean().default(false),
     videos: z.array(videoSchema).optional(),
     images: z.array(z.string()).optional(),
+    imageCredit: z.object({
+      name: z.string(),
+      url: z.string().optional(),
+    }).optional(),
   }),
 });
 

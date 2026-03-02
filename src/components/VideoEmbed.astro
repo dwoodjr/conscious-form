@@ -2,6 +2,7 @@
 interface Video {
   type: 'youtube' | 'vimeo';
   id: string;
+  hash?: string;
   title?: string;
   start?: number;
   end?: number;
@@ -15,8 +16,9 @@ interface Props {
 const { video, index = 0 } = Astro.props;
 const embedId = `video-embed-${index}-${video.id}`;
 
-function buildVimeoUrl(id: string, start?: number): string {
+function buildVimeoUrl(id: string, hash?: string, start?: number): string {
   let url = `https://player.vimeo.com/video/${id}?color=ffffff&title=0&byline=0&portrait=0`;
+  if (hash) url += `&h=${hash}`;
   if (start) url += `#t=${start}s`;
   return url;
 }
@@ -33,7 +35,7 @@ function buildYouTubeUrl(id: string, start?: number, end?: number): string {
   {video.type === 'vimeo' && (
     <iframe
       id={embedId}
-      src={buildVimeoUrl(video.id, video.start)}
+      src={buildVimeoUrl(video.id, video.hash, video.start)}
       class="w-full h-full"
       frameborder="0"
       allow="autoplay; fullscreen; picture-in-picture"

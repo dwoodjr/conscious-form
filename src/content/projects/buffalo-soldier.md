@@ -3,10 +3,11 @@ title: "Buffalo Soldier"
 description: "A speculative narrative exploring the co-commodification of Black bodies and nature through tactility and material."
 date: 2025-01-01
 tags: ["sound", "speculative-design", "history", "narrative"]
-thumbnail: "/images/projects/buffalo-soldier-thumb.jpg"
+thumbnail: "/images/projects/buffalo-soldier/buffalo-soldier-thumb.jpg"
 featured: true
 mediaTypes: ["sound", "interactive"]
 status: "in-progress"
+dissertation: true
 ---
 
 ## Overview

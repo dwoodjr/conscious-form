@@ -87,6 +87,23 @@ const hasImages = collab.data.images && collab.data.images.length > 0;
       <div class="mb-8">
         <h2 class="text-2xl font-semibold mb-6">Documentation</h2>
         <ImageGallery images={collab.data.images!} title={collab.data.title} />
+        {collab.data.imageCredit && (
+          <p class="text-xs text-neutral-500 mt-3">
+            Images courtesy of{' '}
+            {collab.data.imageCredit.url ? (
+              <a
+                href={collab.data.imageCredit.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hover:text-neutral-300 transition-colors underline underline-offset-2"
+              >
+                {collab.data.imageCredit.name}
+              </a>
+            ) : (
+              collab.data.imageCredit.name
+            )}
+          </p>
+        )}
       </div>
     )}
 

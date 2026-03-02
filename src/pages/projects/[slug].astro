@@ -89,6 +89,23 @@ const hasImages = project.data.images && project.data.images.length > 0;
         <div class="w-full">
           <h2 class="text-2xl font-semibold mb-6">Documentation</h2>
           <ImageGallery images={project.data.images!} title={project.data.title} />
+          {project.data.imageCredit && (
+            <p class="text-xs text-neutral-500 mt-3">
+              Images courtesy of{' '}
+              {project.data.imageCredit.url ? (
+                <a
+                  href={project.data.imageCredit.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-neutral-300 transition-colors underline underline-offset-2"
+                >
+                  {project.data.imageCredit.name}
+                </a>
+              ) : (
+                project.data.imageCredit.name
+              )}
+            </p>
+          )}
         </div>
       )}
 

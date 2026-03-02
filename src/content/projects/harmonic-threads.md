@@ -3,7 +3,7 @@ title: "Echoes of Harmonic Threads"
 description: "A real-time performance installation and designer-dancer workshop exploring the intersection of movement, sound, and technology."
 date: 2023-09-06
 tags: ["installation", "sound", "performance", "workshop", "collaboration"]
-thumbnail: "/images/projects/harmonic-threads-thumb.png"
+thumbnail: "/images/projects/harmonic-threads/harmonic-threads-thumb.png"
 featured: true
 status: "complete"
 mediaTypes: ["sound", "installation", "interactive"]
@@ -14,10 +14,10 @@ videos:
     start: 2283
     end: 4684
 images:
-  - "/images/projects/harmonic-threads-thumb.png"
-  - "/images/projects/harmonic-threads-thumb-alt.png"
-  - "/images/projects/ars-2023-whoOwns-horizontal.jpg"
-  - "/images/projects/ars-2023-whoOwns-vertical.jpg"
+  - "/images/projects/harmonic-threads/harmonic-threads-thumb.png"
+  - "/images/projects/harmonic-threads/harmonic-threads-thumb-alt.png"
+  - "/images/projects/harmonic-threads/ars-2023-whoOwns-horizontal.jpg"
+  - "/images/projects/harmonic-threads/ars-2023-whoOwns-vertical.jpg"
 ---
 
 ## Overview
@@ -26,8 +26,8 @@ A real-time performance installation and designer-dancer workshop. The work was 
 
 ## Context
 
-Presented at POSTCITY Linz, September 6–10, 2023 as part of the Ars Electronica Festival for Art, Technology & Society.
+Presented at the Ars Electronica Center in Linz, Austria on September 9, 2023 as part of the Ars Electronica Festival for Art, Technology & Society (running from September 6-10, 2023).
 
 ## Role
 
-Collaboration | Art Direction | Art | Design | Development | Audio Engineering
+Research | Collaboration | Art Direction | Art | Design | Development | Audio Engineering

@@ -3,10 +3,11 @@ title: "Did Sun Ra Fear Cryosleep?"
 description: "A speculative ritual and sonic sculpture exploring the transpiration of Black bodies across space-time."
 date: 2025-03-15
 tags: ["sound", "installation", "speculative-design", "afrofuturism"]
-thumbnail: "/images/projects/sun-ra-thumb.jpg"
+thumbnail: "/images/projects/sun-ra-cryosleep/sun-ra-thumb.jpg"
 featured: true
 mediaTypes: ["sound", "installation", "interactive"]
 status: "in-progress"
+dissertation: true
 ---
 
 ## Overview
