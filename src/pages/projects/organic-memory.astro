@@ -1,0 +1,71 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const allProjects = await getCollection('projects');
+const triptych = allProjects
+  .filter(p => p.data.series === 'Organic Memory (Triptych)')
+  .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
+---
+
+<BaseLayout
+  title="Organic Memory (Triptych) | Conscious Form"
+  description="A triptych of research-creation works investigating Black embodiment, materiality, and memory through sound and installation."
+>
+  <article class="max-w-4xl mx-auto px-4 py-16">
+
+    <a href="/projects" class="text-neutral-400 hover:text-white transition-colors mb-4 inline-block">
+      ← Back to Projects
+    </a>
+
+    <header class="mb-12">
+      <p class="text-xs text-neutral-500 uppercase tracking-widest mb-3">
+        Dissertation Work · Triptych
+      </p>
+      <h1 class="text-4xl font-bold mb-4">Organic Memory</h1>
+      <p class="text-xl text-neutral-400 mb-2">(Triptych)</p>
+    </header>
+
+    <section class="prose prose-invert max-w-none mb-16">
+      <p>Organic Memory Triptych is a series of three interactive sonic sculptures that together constitute a research-creation inquiry into distributed creative intelligence, bodily knowledge, and the material life of sound. Each movement approaches sonicity from a different register (spatial, temporal, and haptic), enacting a practice the work names <em>speculocultural technopoiesis</em>: a speculative, culturally rooted making in which the technological object is never neutral but always already carries memory, relation, and care. Together, the sculptures ask what it might mean to listen with history, to make with matter, and to refuse the separation of the sensory from the political.</p>
+    </section>
+
+    {/* The three pieces */}
+    <section>
+      <h2 class="text-2xl font-semibold mb-8">The Three Pieces</h2>
+      <div class="flex flex-col gap-6">
+        {triptych.map(project => (
+          <a
+            href={`/projects/${project.slug}`}
+            class="group flex gap-6 border border-neutral-800 rounded-lg p-6 hover:border-neutral-600 transition-colors"
+          >
+            {project.data.thumbnail ? (
+              <img
+                src={project.data.thumbnail}
+                alt={project.data.title}
+                class="w-40 h-28 object-cover rounded flex-shrink-0"
+              />
+            ) : (
+              <div class="w-40 h-28 bg-neutral-800 rounded flex-shrink-0 flex items-center justify-center">
+                <span class="text-neutral-600 text-xs">No image</span>
+              </div>
+            )}
+            <div>
+              <p class="text-xs text-neutral-500 mb-1">Part {project.data.seriesOrder}</p>
+              <h3 class="text-xl font-semibold group-hover:text-white mb-2 transition-colors">
+                {project.data.title}
+              </h3>
+              <p class="text-neutral-400 text-sm leading-relaxed">{project.data.description}</p>
+              <div class="flex flex-wrap gap-2 mt-3">
+                {project.data.tags.map(tag => (
+                  <span class="text-xs bg-neutral-800 px-2 py-1 rounded">{tag}</span>
+                ))}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+  </article>
+</BaseLayout>

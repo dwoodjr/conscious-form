@@ -1,0 +1,45 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  current: CollectionEntry<'projects'>;
+  siblings: CollectionEntry<'projects'>[];
+  seriesHref: string;
+}
+
+const { current, siblings, seriesHref } = Astro.props;
+const seriesTitle = current.data.series!;
+---
+
+<div class="border border-neutral-800 rounded-lg p-6 mb-10">
+  <div class="flex items-center justify-between mb-3">
+    <p class="text-xs text-neutral-500 uppercase tracking-widest">Part of</p>
+    <a href={seriesHref} class="text-xs text-neutral-400 hover:text-white transition-colors">
+      View full series →
+    </a>
+  </div>
+  <a href={seriesHref} class="text-lg font-semibold hover:text-white transition-colors mb-5 block">
+    {seriesTitle}
+  </a>
+  <div class="grid grid-cols-3 gap-3">
+    {siblings.map(sibling => {
+      const isCurrent = sibling.slug === current.slug;
+      return (
+        <a
+          href={isCurrent ? undefined : `/projects/${sibling.slug}`}
+          class:list={[
+            'p-4 rounded border text-sm transition-colors',
+            isCurrent
+              ? 'border-[#E63946] bg-[#E63946]/10 text-white cursor-default'
+              : 'border-neutral-700 hover:border-neutral-500 text-neutral-400 hover:text-white'
+          ]}
+        >
+          <span class="text-xs text-neutral-500 block mb-1">
+            Part {sibling.data.seriesOrder}
+          </span>
+          {sibling.data.title}
+        </a>
+      );
+    })}
+  </div>
+</div>

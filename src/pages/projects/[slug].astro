@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import VideoEmbed from '../../components/VideoEmbed.astro';
 import ImageGallery from '../../components/ImageGallery.astro';
+import SeriesNav from '../../components/SeriesNav.astro';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -15,6 +16,26 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const { Content } = await project.render();
 
+// Series siblings
+let seriesProjects: typeof project[] = [];
+if (project.data.series) {
+  const allProjects = await getCollection('projects');
+  seriesProjects = allProjects
+    .filter(p => p.data.series === project.data.series)
+    .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
+}
+
+// Derive the series overview page URL from the series title
+// e.g. "Organic Memory (Triptych)" → "/projects/organic-memory"
+const seriesHref = project.data.series
+  ? `/projects/${project.data.series
+      .replace(/\s*\(.*?\)/g, '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '-')}`
+  : null;
+
+const hasSeries = seriesProjects.length > 1;
 const hasVideos = project.data.videos && project.data.videos.length > 0;
 const hasImages = project.data.images && project.data.images.length > 0;
 ---
@@ -46,6 +67,11 @@ const hasImages = project.data.images && project.data.images.length > 0;
         })}
       </time>
     </header>
+
+    {/* Series navigation banner */}
+    {hasSeries && (
+      <SeriesNav current={project} siblings={seriesProjects} seriesHref={seriesHref!} />
+    )}
 
     {/* Thumbnail - ALWAYS show if it exists */}
     {project.data.thumbnail && (

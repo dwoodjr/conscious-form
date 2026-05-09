@@ -27,6 +27,8 @@ const projects = defineCollection({
     ])).optional(),
     status: z.enum(['complete', 'in-progress', 'archived']).default('complete'),
     dissertation: z.boolean().default(false),
+    series: z.string().optional(),
+    seriesOrder: z.number().optional(),
     imageCredit: z.object({
       name: z.string(),
       url: z.string().optional(),

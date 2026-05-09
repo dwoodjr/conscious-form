@@ -3,421 +3,543 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const sketchbookItems = await getCollection('sketchbook');
-
-const sortedItems = sketchbookItems.sort(
+const sortedItems = [...sketchbookItems].sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
 
-function getDotColor(item: CollectionEntry<'sketchbook'>) {
-  const tags = item.data.tags || [];
-  if (tags.some(t => ['sound', 'audio', 'synthesis', 'max'].includes(t))) return 'red';
-  if (tags.some(t => ['animation', '3d', 'visual', 'houdini', 'video'].includes(t))) return 'yellow';
-  if (tags.some(t => ['code', 'patch', 'interactive', 'web'].includes(t))) return 'blue';
-  return 'white';
+function getNodeColor(item: CollectionEntry<'sketchbook'>): string {
+  const tags = item.data.tags ?? [];
+  if (tags.some(t => ['sound', 'audio', 'synthesis', 'max'].includes(t))) return '#E63946';
+  if (tags.some(t => ['animation', '3d', 'visual', 'houdini', 'video', 'unreal'].includes(t))) return '#F4D03F';
+  if (tags.some(t => ['code', 'patch', 'interactive', 'web'].includes(t))) return '#3B82F6';
+  return '#e5e5e5';
 }
 
-function getDotSize(index: number, total: number) {
-  if (index < 3) return 'large';   // First 3 = large
-  if (index < 8) return 'medium';  // Next 5 = medium
-  return 'small';                  // Rest = small
+function getNodeRadius(index: number): number {
+  if (index === 0) return 28;
+  if (index < 3) return 22;
+  if (index < 8) return 17;
+  return 12;
 }
 
-function getMediaType(item: CollectionEntry<'sketchbook'>) {
-  if (item.data.audioPreview) return 'audio';
-  if (item.data.videoPreview) return 'video';
-  return 'none';
+interface NodeData {
+  id: string;
+  title: string;
+  color: string;
+  radius: number;
+  thumbnail: string | null;
+  tags: string[];
+  description: string;
+  href: string;
+  audioPreview: string | null;
+  videoPreview: string | null;
 }
 
-// Generate organic positioning (scattered)
-function getOrganicPosition(index: number, total: number) {
-  const seed = index * 2654435761;
-  const random = (seed % 100) / 100;
-  
-  const cols = 6;
-  const col = index % cols;
-  const row = Math.floor(index / cols);
-  
-  const baseX = (col / cols) * 90 + 5;
-  const baseY = row * 20 + 15;
-  
-  const offsetX = (random - 0.5) * 15;
-  const offsetY = ((seed % 100) / 100 - 0.5) * 12;
-  
-  const finalX = Math.max(8, Math.min(92, baseX + offsetX));
-  const finalY = Math.max(12, baseY + offsetY);
-  
-  return {
-    left: `${finalX}%`,
-    top: `${finalY}vh`,
-    // Add numeric versions for SVG
-    leftNum: finalX,
-    topNum: finalY,
-  };
+interface LinkData {
+  source: string;
+  target: string;
+  explicit: boolean;
 }
+
+const slugSet = new Set(sortedItems.map(i => i.slug));
+
+const graphNodes: NodeData[] = sortedItems.map((item, index) => ({
+  id: item.slug,
+  title: item.data.title,
+  color: getNodeColor(item),
+  radius: getNodeRadius(index),
+  thumbnail: item.data.thumbnail ?? null,
+  tags: item.data.tags ?? [],
+  description: item.data.description,
+  href: `/sketchbook/${item.slug}`,
+  audioPreview: item.data.audioPreview ?? null,
+  videoPreview: item.data.videoPreview ?? null,
+}));
+
+// Explicit edges from relatedTo (deduplicated, broken refs skipped)
+const seenKeys = new Set<string>();
+const explicitEdges: LinkData[] = [];
+sortedItems.forEach(item => {
+  (item.data.relatedTo ?? []).forEach(slug => {
+    if (!slugSet.has(slug)) return;
+    const key = [item.slug, slug].sort().join('|');
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      explicitEdges.push({ source: item.slug, target: slug, explicit: true });
+    }
+  });
+});
+
+// Loose all-pairs edges for the web texture
+const looseEdges: LinkData[] = [];
+for (let i = 0; i < graphNodes.length; i++) {
+  for (let j = i + 1; j < graphNodes.length; j++) {
+    const key = [graphNodes[i].id, graphNodes[j].id].sort().join('|');
+    if (!seenKeys.has(key)) {
+      looseEdges.push({ source: graphNodes[i].id, target: graphNodes[j].id, explicit: false });
+    }
+  }
+}
+
+const graphData = { nodes: graphNodes, links: [...explicitEdges, ...looseEdges] };
+const hasItems = sortedItems.length > 0;
 ---
 
 <BaseLayout title="Sketchbook | Conscious Form">
-  <section class="max-w-7xl mx-auto px-4 py-16">
-    
-    <h1 class="text-4xl font-bold mb-4">Sketchbook</h1>
-    <p class="text-neutral-400 mb-12">
-      Experiments, explorations, and ephemera — hover to experience.
-    </p>
 
-    <!-- Organic dot field -->
-    <div class="dot-field">
+  <div class="sketchbook-wrapper">
 
-      {/* Canvas for connection lines */}
-      <canvas id="connection-canvas" class="connection-canvas"></canvas>
-
-      {/* Sketch dots */}  
-      {sortedItems.map((item, index) => {
-        const color = getDotColor(item);
-        const size = getDotSize(index, sortedItems.length);
-        const mediaType = getMediaType(item);
-        const position = getOrganicPosition(index, sortedItems.length);
-        
-        return (
-            <a 
-            href={`/sketchbook/${item.slug}`}
-            class={`sketch-dot sketch-dot-${size} sketch-dot-${color}`}
-            style={`left: ${position.left}; top: ${position.top};`}
-            data-title={item.data.title}
-            data-thumbnail={item.data.thumbnail}
-            data-media-type={mediaType}
-            data-audio={item.data.audioPreview}
-            data-video={item.data.videoPreview}
-            data-related={item.data.relatedTo?.join(',')}
-            >
-            {/* Thumbnail background (hidden by default) */}
-            {item.data.thumbnail && (
-              <span 
-                class="dot-thumbnail" 
-                style={`background-image: url(${item.data.thumbnail});`}
-              ></span>
-            )}
-            
-            {/* Video element (added by JS if needed) */}
-            
-            <span class="sr-only">{item.data.title}</span>
-          </a>
-        );
-      })}
+    <div class="sketchbook-header">
+      <h1 class="text-4xl font-bold mb-1">Sketchbook</h1>
+      <p class="text-neutral-400 text-sm">
+        Experiments, explorations, ephemera. Click a node to explore.
+      </p>
     </div>
 
-  </section>
+    <div id="graph-container">
+      {hasItems ? (
+        <svg id="graph-svg" aria-label="Sketchbook graph">
+          <defs id="svg-defs"></defs>
+          <g id="zoom-layer">
+            <g id="links-layer"></g>
+            <g id="nodes-layer"></g>
+          </g>
+        </svg>
+      ) : (
+        <p class="empty-state">Nothing here yet.</p>
+      )}
+    </div>
+
+    <!-- Preview panel (hidden until a node is clicked) -->
+    <div id="preview-panel" class="preview-panel" aria-hidden="true">
+      <button id="preview-close" class="preview-close" aria-label="Close">×</button>
+      <div id="preview-thumb-wrap" class="preview-thumb-wrap">
+        <img id="preview-thumb" class="preview-thumb" src="" alt="" />
+      </div>
+      <div class="preview-body">
+        <h3 id="preview-title" class="preview-title"></h3>
+        <div id="preview-tags" class="preview-tags"></div>
+        <p id="preview-desc" class="preview-desc"></p>
+        <a id="preview-visit" class="preview-visit" href="#">Open →</a>
+      </div>
+    </div>
+
+    <div class="graph-legend" aria-hidden="true">
+      <span class="legend-item"><span class="legend-dot" style="background:#E63946"></span>Sound</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#F4D03F"></span>Visual</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#3B82F6"></span>Code</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#e5e5e5"></span>Other</span>
+    </div>
+
+  </div>
+
 </BaseLayout>
 
+<script define:vars={{ graphData, hasItems }} is:inline>
+  window.__sketchbookGraph = graphData;
+  window.__sketchbookHasItems = hasItems;
+</script>
+
 <style>
-    /* Connection lines canvas styling */
-    .connection-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
+  .sketchbook-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 4rem);
+    padding: 1.5rem 1.5rem 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .sketchbook-header {
+    flex-shrink: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  #graph-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #graph-svg {
     width: 100%;
     height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    }
+    display: block;
+    cursor: grab;
+  }
+  #graph-svg:active { cursor: grabbing; }
 
-    /* Highlight connected lines on dot hover */
-    .sketch-dot:hover {
-    opacity: 1;
-    transform: scale(1.3);
-    z-index: 10;
-    border-width: 4px;
-    }
-    .dot-field {
-    position: relative;
-    min-height: 100vh;
-    width: 100%;
-    padding: 4rem 2rem 8rem 2rem; /* Extra bottom padding for labels */
-    margin-top: 2rem;
-    }
-  
-    .sketch-dot {
+  .empty-state {
     position: absolute;
-    border-radius: 50%;
-    border: 3px solid var(--dot-color);
-    background: transparent;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0.9;
-    overflow: visible;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    }
-  
-  /* Size variants */
-  .sketch-dot-large { 
-    width: 80px; 
-    height: 80px;
+    color: #525252;
+    font-style: italic;
   }
-  
-  .sketch-dot-medium { 
-    width: 60px; 
-    height: 60px;
-  }
-  
-  .sketch-dot-small { 
-    width: 40px; 
-    height: 40px;
-  }
-  
-    /* Color assignments (border colors) */
-    .sketch-dot-red { --dot-color: #E63946; }
-    .sketch-dot-yellow { --dot-color: #F4D03F; }
-    .sketch-dot-blue { --dot-color: #3B82F6; }
-    .sketch-dot-white { --dot-color: #fafafa; }
 
-  
-    /* Thumbnail inside dot (ALWAYS visible) */
-    .dot-thumbnail {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-    border-radius: 50%; /* Add this to keep it circular */
-    }
-  
-    /* Hover states */
-    .sketch-dot:hover {
-    opacity: 1;
-    transform: scale(1.3);
-    z-index: 10;
-    border-width: 4px;
-    }
-
-    .sketch-dot:hover .dot-thumbnail {
-    opacity: 1;
-    }
-  
-    /* Title - ALWAYS visible below dot */
-    .sketch-dot::after {
-    content: attr(data-title);
-    position: absolute;
-    top: calc(100% + 14px);
+  /* ── Preview panel ───────────────────────────── */
+  .preview-panel {
+    position: fixed;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    font-size: 0.75rem;
-    color:  #a3a3a3; /* Lighter gray */
+    transform: translate(-50%, -50%) scale(0.94);
+    width: 268px;
+    background: #0a0a0a;
+    border: 1px solid #2e2e2e;
+    border-radius: 10px;
+    padding: 1.125rem;
+    z-index: 200;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
+    opacity: 0;
     pointer-events: none;
-    z-index: 2;
-    text-align: center;
-    max-width: 200px;
-    line-height: 1.2;
-    }
-
-    .sketch-dot:hover::after {
-    color: #ffffff;
-    font-weight: 500;
-    }
-  
-    /* Video element styling */
-    .dot-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-    }
-  
-  .dot-video.show {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .preview-panel.visible {
     opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
   }
-  
-  .sr-only {
+
+  .preview-close {
     position: absolute;
-    width: 1px;
-    height: 1px;
+    top: 0.5rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: #525252;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
     padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
+    transition: color 0.15s;
   }
+  .preview-close:hover { color: #e5e5e5; }
+
+  .preview-thumb-wrap {
+    width: 100%;
+    height: 118px;
+    background: #141414;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.875rem;
+  }
+  .preview-thumb-wrap.hidden { display: none; }
+  .preview-thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .preview-title {
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: #f5f5f5;
+    margin-bottom: 0.4rem;
+    line-height: 1.35;
+  }
+
+  .preview-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.6rem;
+  }
+  .preview-tag {
+    font-size: 0.68rem;
+    background: #1c1c1c;
+    color: #737373;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+  }
+
+  .preview-desc {
+    font-size: 0.78rem;
+    color: #636363;
+    line-height: 1.55;
+    margin-bottom: 0.875rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .preview-visit {
+    display: inline-block;
+    font-size: 0.82rem;
+    color: #e5e5e5;
+    background: #1c1c1c;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 0.375rem 0.875rem;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .preview-visit:hover { background: #272727; border-color: #555; }
+
+  /* ── Legend ──────────────────────────────────── */
+  .graph-legend {
+    flex-shrink: 0;
+    display: flex;
+    gap: 1.25rem;
+    padding: 0.625rem 0;
+    font-size: 0.72rem;
+    color: #525252;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.35rem; }
+  .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; opacity: 0.85; }
 </style>
 
-{/* Script to handle audio/video previews on hover */}
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const dots = document.querySelectorAll('.sketch-dot');
-    let currentAudio: HTMLAudioElement | null = null;
-    let currentVideo: HTMLVideoElement | null = null;
-    
-    function cleanupMedia() {
-      // Stop audio
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        currentAudio = null;
-      }
-      
-      // Stop and remove video
-      if (currentVideo) {
-        currentVideo.pause();
-        currentVideo.currentTime = 0;
-        currentVideo.classList.remove('show');
-        setTimeout(() => {
-          if (currentVideo && currentVideo.parentNode) {
-            currentVideo.parentNode.removeChild(currentVideo);
-          }
-          currentVideo = null;
-        }, 400);
-      }
-    }
-    
-    dots.forEach(dot => {
-      dot.addEventListener('mouseenter', (e) => {
-        const mediaType = dot.getAttribute('data-media-type');
-        const audioSrc = dot.getAttribute('data-audio');
-        const videoSrc = dot.getAttribute('data-video');
-        
-        // Handle audio preview
-        if (mediaType === 'audio' && audioSrc) {
-          currentAudio = new Audio(audioSrc);
-          currentAudio.volume = 0.5;
-          currentAudio.play().catch(err => console.log('Audio play failed:', err));
-        }
-        
-        // Handle video preview - inject into the dot
-        else if (mediaType === 'video' && videoSrc) {
-          currentVideo = document.createElement('video');
-          currentVideo.src = videoSrc;
-          currentVideo.muted = true;
-          currentVideo.loop = true;
-          currentVideo.className = 'dot-video';
-          
-          dot.appendChild(currentVideo);
-          
-          requestAnimationFrame(() => {
-            currentVideo?.classList.add('show');
-            currentVideo?.play().catch(err => console.log('Video play failed:', err));
-          });
-        }
-      });
-      
-      dot.addEventListener('mouseleave', () => {
-        cleanupMedia();
-      });
-    });
-  });
-</script>
+  import {
+    forceSimulation,
+    forceLink,
+    forceManyBody,
+    forceCenter,
+    forceCollide,
+    select,
+    drag,
+    zoom,
+    type SimulationNodeDatum,
+    type SimulationLinkDatum,
+  } from 'd3';
 
-{/* Script to draw connection lines between related dots */}
-<script>
-  let currentCanvas: HTMLCanvasElement | null = null;
-  let currentCtx: CanvasRenderingContext2D | null = null;
-  let allDots: NodeListOf<Element> | null = null;
-  
-  function drawConnections(hoveredDot: Element | null = null) {
-    if (!currentCanvas || !currentCtx) return;
-    
-    const container = currentCanvas.parentElement;
-    if (!container) return;
-    
-    // Clear canvas
-    currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
-    
-    if (!allDots) return;
-    
-    // Draw lines between connected dots
-    allDots.forEach(dot => {
-      const relatedTo = dot.getAttribute('data-related');
-      if (!relatedTo) return;
-      
-      const relatedSlugs = relatedTo.split(',');
-      const isHovered = dot === hoveredDot;
-      
-      // Get this dot's center position
-      const fromRect = dot.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      const fromX = fromRect.left - containerRect.left + fromRect.width / 2;
-      const fromY = fromRect.top - containerRect.top + fromRect.height / 2;
-      
-      relatedSlugs.forEach(slug => {
-        // Find the related dot
-        const relatedDot = Array.from(allDots!).find(d => 
-          d.getAttribute('href')?.includes(slug.trim())
-        );
-        
-        if (!relatedDot) return;
-        
-        const isRelatedHovered = relatedDot === hoveredDot;
-        
-        // Get related dot's center position
-        const toRect = relatedDot.getBoundingClientRect();
-        const toX = toRect.left - containerRect.left + toRect.width / 2;
-        const toY = toRect.top - containerRect.top + toRect.height / 2;
-        
-        // Draw line with different opacity based on hover state
-        currentCtx!.beginPath();
-        currentCtx!.moveTo(fromX, fromY);
-        currentCtx!.lineTo(toX, toY);
-        
-        // White color, brighter when connected dot is hovered
-        if (isHovered || isRelatedHovered) {
-          currentCtx!.strokeStyle = 'rgba(255, 255, 255, 0.8)'; // Bright white on hover
-          currentCtx!.lineWidth = 2;
-        } else {
-          currentCtx!.strokeStyle = 'rgba(255, 255, 255, 0.3)'; // Subtle white default
-          currentCtx!.lineWidth = 1;
+  // ── Types ──────────────────────────────────────────────────────────────
+  interface NodeDatum extends SimulationNodeDatum {
+    id: string;
+    title: string;
+    color: string;
+    radius: number;
+    thumbnail: string | null;
+    tags: string[];
+    description: string;
+    href: string;
+    audioPreview: string | null;
+    videoPreview: string | null;
+  }
+
+  interface LinkDatum extends SimulationLinkDatum<NodeDatum> {
+    explicit: boolean;
+  }
+
+  function asNode(end: string | number | NodeDatum): NodeDatum {
+    return end as NodeDatum;
+  }
+
+  // ── Guard ──────────────────────────────────────────────────────────────
+  const w = window as typeof window & {
+    __sketchbookGraph: { nodes: NodeDatum[]; links: LinkDatum[] };
+    __sketchbookHasItems: boolean;
+  };
+  if (!w.__sketchbookHasItems) {
+    // no items — static empty state is already rendered
+  } else {
+    const { nodes, links } = w.__sketchbookGraph;
+
+    // ── DOM ───────────────────────────────────────────────────────────────
+    const container = document.getElementById('graph-container')!;
+    const svgEl = document.getElementById('graph-svg') as unknown as SVGSVGElement;
+    const svg = select(svgEl);
+    const defs = svg.select<SVGDefsElement>('#svg-defs');
+    const zoomLayer = svg.select<SVGGElement>('#zoom-layer');
+    const linksLayer = zoomLayer.select<SVGGElement>('#links-layer');
+    const nodesLayer = zoomLayer.select<SVGGElement>('#nodes-layer');
+
+    let W = container.clientWidth;
+    let H = container.clientHeight;
+
+    // ── Zoom / pan ────────────────────────────────────────────────────────
+    const zoomBehavior = zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.2, 6])
+      .on('zoom', ({ transform }) => zoomLayer.attr('transform', String(transform)));
+
+    svg.call(zoomBehavior);
+    svg.on('click.panel', () => hidePanel());
+
+    // ── Simulation ────────────────────────────────────────────────────────
+    const sim = forceSimulation<NodeDatum>(nodes)
+      .force(
+        'link',
+        forceLink<NodeDatum, LinkDatum>(links as LinkDatum[])
+          .id(d => d.id)
+          .distance(d => d.explicit ? 115 : 175)
+          .strength(d => d.explicit ? 0.65 : 0.04),
+      )
+      .force('charge', forceManyBody<NodeDatum>().strength(-270))
+      .force('center', forceCenter<NodeDatum>(W / 2, H / 2).strength(0.05))
+      .force('collide', forceCollide<NodeDatum>().radius(d => d.radius + 10).strength(0.85))
+      .alphaDecay(0.007)
+      .alphaTarget(0.06)    // never fully settles — perpetual gentle float
+      .velocityDecay(0.72);
+
+    // ── Edges ─────────────────────────────────────────────────────────────
+    const linkEls = linksLayer
+      .selectAll<SVGLineElement, LinkDatum>('line')
+      .data(links as LinkDatum[])
+      .join('line')
+      .attr('stroke', d => d.explicit ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.05)')
+      .attr('stroke-width', d => d.explicit ? 1.5 : 0.5);
+
+    // ── Nodes ─────────────────────────────────────────────────────────────
+    const nodeEls = nodesLayer
+      .selectAll<SVGGElement, NodeDatum>('g.node')
+      .data(nodes)
+      .join('g')
+      .attr('class', 'node')
+      .style('cursor', 'pointer');
+
+    // Circle
+    nodeEls.append('circle')
+      .attr('r', d => d.radius)
+      .attr('fill', d => d.color + '18')
+      .attr('stroke', d => d.color)
+      .attr('stroke-width', 2);
+
+    // Thumbnail via SVG clipPath + image
+    nodeEls.each(function(d) {
+      if (!d.thumbnail) return;
+      const g = select(this);
+      const clipId = `clip-${d.id}`;
+      defs.append('clipPath').attr('id', clipId)
+        .append('circle').attr('r', d.radius - 1);
+      g.append('image')
+        .attr('href', d.thumbnail)
+        .attr('x', -(d.radius - 1)).attr('y', -(d.radius - 1))
+        .attr('width', (d.radius - 1) * 2).attr('height', (d.radius - 1) * 2)
+        .attr('clip-path', `url(#${clipId})`)
+        .attr('preserveAspectRatio', 'xMidYMid slice')
+        .attr('opacity', 0.6);
+    });
+
+    // Label
+    nodeEls.append('text')
+      .attr('class', 'node-label')
+      .attr('dy', d => d.radius + 13)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#4a4a4a')
+      .attr('font-size', '11')
+      .attr('font-family', 'Inter, sans-serif')
+      .attr('pointer-events', 'none')
+      .text(d => d.title);
+
+    // ── Hover ─────────────────────────────────────────────────────────────
+    let currentAudio: HTMLAudioElement | null = null;
+
+    nodeEls
+      .on('mouseenter', function(_, d) {
+        const connected = new Set<string>([d.id]);
+        (links as LinkDatum[]).forEach(l => {
+          const s = asNode(l.source).id;
+          const t = asNode(l.target).id;
+          if (s === d.id) connected.add(t);
+          if (t === d.id) connected.add(s);
+        });
+
+        nodeEls.style('opacity', n => connected.has(n.id) ? '1' : '0.12');
+        nodeEls.select<SVGTextElement>('text')
+          .attr('fill', n => n.id === d.id ? '#c8c8c8' : '#4a4a4a');
+
+        linkEls.attr('stroke', l => {
+          const s = asNode(l.source).id;
+          const t = asNode(l.target).id;
+          const hit = s === d.id || t === d.id;
+          if (!hit) return 'rgba(255,255,255,0.02)';
+          return l.explicit ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.22)';
+        });
+
+        select(this).select<SVGCircleElement>('circle')
+          .attr('r', d.radius * 1.18)
+          .attr('stroke-width', 2.5);
+
+        if (d.audioPreview) {
+          currentAudio = new Audio(d.audioPreview);
+          currentAudio.volume = 0.4;
+          currentAudio.play().catch(() => {});
         }
-        
-        currentCtx!.stroke();
+      })
+      .on('mouseleave', function(_, d) {
+        nodeEls.style('opacity', '1');
+        nodeEls.select<SVGTextElement>('text').attr('fill', '#4a4a4a');
+        linkEls.attr('stroke', l => l.explicit ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.05)');
+        select(this).select<SVGCircleElement>('circle')
+          .attr('r', d.radius)
+          .attr('stroke-width', 2);
+        if (currentAudio) { currentAudio.pause(); currentAudio = null; }
       });
+
+    // ── Click → preview panel ─────────────────────────────────────────────
+    const panel       = document.getElementById('preview-panel')!;
+    const panelClose  = document.getElementById('preview-close')!;
+    const thumbWrap   = document.getElementById('preview-thumb-wrap')!;
+    const panelThumb  = document.getElementById('preview-thumb') as HTMLImageElement;
+    const panelTitle  = document.getElementById('preview-title')!;
+    const panelTags   = document.getElementById('preview-tags')!;
+    const panelDesc   = document.getElementById('preview-desc')!;
+    const panelVisit  = document.getElementById('preview-visit') as HTMLAnchorElement;
+
+    function showPanel(d: NodeDatum) {
+      panelTitle.textContent = d.title;
+      panelDesc.textContent  = d.description;
+      panelVisit.href        = d.href;
+      panelTags.innerHTML    = d.tags.map(t => `<span class="preview-tag">${t}</span>`).join('');
+
+      if (d.thumbnail) {
+        panelThumb.src = d.thumbnail;
+        panelThumb.alt = d.title;
+        thumbWrap.classList.remove('hidden');
+      } else {
+        thumbWrap.classList.add('hidden');
+      }
+      panel.classList.add('visible');
+      panel.setAttribute('aria-hidden', 'false');
+    }
+
+    function hidePanel() {
+      panel.classList.remove('visible');
+      panel.setAttribute('aria-hidden', 'true');
+    }
+
+    panelClose.addEventListener('click', e => { e.stopPropagation(); hidePanel(); });
+
+    nodeEls.on('click', (event, d) => {
+      event.stopPropagation();
+      showPanel(d);
+    });
+
+    // ── Drag ──────────────────────────────────────────────────────────────
+    const dragBehavior = drag<SVGGElement, NodeDatum>()
+      .clickDistance(4)
+      .on('start', (event, d) => {
+        if (!event.active) sim.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      })
+      .on('drag', (event, d) => {
+        d.fx = event.x;
+        d.fy = event.y;
+      })
+      .on('end', (event, d) => {
+        if (!event.active) sim.alphaTarget(0.06);
+        d.fx = null;
+        d.fy = null;
+      });
+
+    nodeEls.call(dragBehavior);
+
+    // ── Simulation tick ───────────────────────────────────────────────────
+    sim.on('tick', () => {
+      linkEls
+        .attr('x1', d => asNode(d.source).x ?? 0)
+        .attr('y1', d => asNode(d.source).y ?? 0)
+        .attr('x2', d => asNode(d.target).x ?? 0)
+        .attr('y2', d => asNode(d.target).y ?? 0);
+
+      nodeEls.attr('transform', d => `translate(${d.x ?? 0},${d.y ?? 0})`);
+    });
+
+    // ── Resize ────────────────────────────────────────────────────────────
+    window.addEventListener('resize', () => {
+      W = container.clientWidth;
+      H = container.clientHeight;
+      sim.force('center', forceCenter<NodeDatum>(W / 2, H / 2).strength(0.05));
+      sim.alpha(0.3).restart();
     });
   }
-  
-  function initializeCanvas() {
-    currentCanvas = document.getElementById('connection-canvas') as HTMLCanvasElement;
-    if (!currentCanvas) return;
-    
-    currentCtx = currentCanvas.getContext('2d');
-    if (!currentCtx) return;
-    
-    const container = currentCanvas.parentElement;
-    if (!container) return;
-    
-    // Set canvas size
-    currentCanvas.width = container.offsetWidth;
-    currentCanvas.height = container.offsetHeight;
-    
-    // Get all dots
-    allDots = document.querySelectorAll('.sketch-dot');
-    
-    // Add hover listeners to dots
-    allDots.forEach(dot => {
-      dot.addEventListener('mouseenter', () => {
-        drawConnections(dot);
-      });
-      
-      dot.addEventListener('mouseleave', () => {
-        drawConnections(null);
-      });
-    });
-    
-    // Initial draw
-    drawConnections();
-  }
-  
-  function handleResize() {
-    if (!currentCanvas || !currentCanvas.parentElement) return;
-    currentCanvas.width = currentCanvas.parentElement.offsetWidth;
-    currentCanvas.height = currentCanvas.parentElement.offsetHeight;
-    drawConnections();
-  }
-  
-  // Initialize on load
-  window.addEventListener('load', initializeCanvas);
-  window.addEventListener('resize', handleResize);
 </script>
