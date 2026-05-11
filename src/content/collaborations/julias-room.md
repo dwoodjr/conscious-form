@@ -27,7 +27,7 @@ images:
   - "/images/collaborations/julias-room/goop-w-goop.png"
   - "/images/collaborations/julias-room/goop-w-cutouts.png"
   - "/images/collaborations/julias-room/sponge.png"
-  - "/images/collaborations/julias-room/sponge-w-bubbles.png"
+  - "/images/collaborations/julias-room/sponge-w-bubbles.jpg"
   - "/images/collaborations/julias-room/mini-detail.png"
   - "/images/collaborations/julias-room/baby.png"
 ---

@@ -16,13 +16,13 @@ videos:
     title: "Did Sun Ra Fear Cryosleep? — Documentation"
 audioSamples:
   - title: "Dissolution Test 003"
-    src: "/audio/projects/sun-ra-cryosleep/Dissolution_Test_003.wav"
+    src: "/audio/projects/sun-ra-cryosleep/Dissolution_Test_003.mp3"
   - title: "Dissolve Soul — HYPHN"
-    src: "/audio/projects/sun-ra-cryosleep/Dissolve_Soul-00_HYPHN-00_0-2.wav"
+    src: "/audio/projects/sun-ra-cryosleep/Dissolve_Soul-00_HYPHN-00_0-2.mp3"
   - title: "Dissolve Test — PZT Parallel Contact"
-    src: "/audio/projects/sun-ra-cryosleep/Dissolve_Test_PZT_Parallel_Contact_001.wav"
+    src: "/audio/projects/sun-ra-cryosleep/Dissolve_Test_PZT_Parallel_Contact_001.mp3"
   - title: "Soul Dissolve Sample (120s)"
-    src: "/audio/projects/sun-ra-cryosleep/soul_dissolve_sample_00_120s.wav"
+    src: "/audio/projects/sun-ra-cryosleep/soul_dissolve_sample_00_120s.mp3"
 images:
   - "/images/projects/sun-ra-cryosleep/IMG_6583.jpeg"
   - "/images/projects/sun-ra-cryosleep/IMG_6597.jpeg"

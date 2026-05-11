@@ -152,7 +152,7 @@ const hasAudio = project.data.audioSamples && project.data.audioSamples.length >
                 <p class="text-sm text-neutral-400 mb-3">{sample.title}</p>
               )}
               <audio controls class="w-full">
-                <source src={sample.src} type="audio/wav" />
+                <source src={sample.src} type={sample.src.endsWith('.mp3') ? 'audio/mpeg' : 'audio/wav'} />
               </audio>
             </div>
           ))}
