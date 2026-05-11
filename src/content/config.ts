@@ -29,6 +29,10 @@ const projects = defineCollection({
     dissertation: z.boolean().default(false),
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
+    audioSamples: z.array(z.object({
+      title: z.string().optional(),
+      src: z.string(),
+    })).optional(),
     imageCredit: z.object({
       name: z.string(),
       url: z.string().optional(),
@@ -49,6 +53,7 @@ const collaborations = defineCollection({
     featured: z.boolean().default(false),
     videos: z.array(videoSchema).optional(),
     images: z.array(z.string()).optional(),
+    document: z.string().optional(),
     imageCredit: z.object({
       name: z.string(),
       url: z.string().optional(),

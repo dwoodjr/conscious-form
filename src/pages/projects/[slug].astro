@@ -38,6 +38,7 @@ const seriesHref = project.data.series
 const hasSeries = seriesProjects.length > 1;
 const hasVideos = project.data.videos && project.data.videos.length > 0;
 const hasImages = project.data.images && project.data.images.length > 0;
+const hasAudio = project.data.audioSamples && project.data.audioSamples.length > 0;
 ---
 
 <BaseLayout
@@ -137,6 +138,27 @@ const hasImages = project.data.images && project.data.images.length > 0;
 
     </div>
   )}
+
+    {/* Audio Samples */}
+    {hasAudio && (
+      <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-6">
+          {project.data.audioSamples!.length === 1 ? 'Audio Sample' : 'Audio Samples'}
+        </h2>
+        <div class="flex flex-col gap-4">
+          {project.data.audioSamples!.map(sample => (
+            <div class="bg-neutral-900 rounded-lg p-4">
+              {sample.title && (
+                <p class="text-sm text-neutral-400 mb-3">{sample.title}</p>
+              )}
+              <audio controls class="w-full">
+                <source src={sample.src} type="audio/wav" />
+              </audio>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
 
   </article>
 </BaseLayout>

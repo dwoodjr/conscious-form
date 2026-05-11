@@ -26,5 +26,10 @@ pnpm-debug.log*
 # Debug directory
 _debug/*
 
-# Claude Worktrees
-.claude/worktrees/
+# Claude Code local files
+.claude/
+
+# In-processing staging area — exclude large un-uploaded media
+public/in-processing/**/*.mp4
+public/in-processing/**/*.tif
+public/in-processing/**/*.mov

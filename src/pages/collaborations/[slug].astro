@@ -17,6 +17,7 @@ const { Content } = await collab.render();
 
 const hasVideos = collab.data.videos && collab.data.videos.length > 0;
 const hasImages = collab.data.images && collab.data.images.length > 0;
+const hasDocument = !!collab.data.document;
 ---
 
 <BaseLayout
@@ -79,6 +80,19 @@ const hasImages = collab.data.images && collab.data.images.length > 0;
             <VideoEmbed video={video} index={i} />
           </div>
         ))}
+      </div>
+    )}
+
+    {/* Document Embed */}
+    {hasDocument && (
+      <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-6">Exhibition Programme</h2>
+        <iframe
+          src={collab.data.document}
+          title="Exhibition Programme"
+          class="w-full rounded-lg border border-neutral-800"
+          style="height: 700px;"
+        />
       </div>
     )}
 

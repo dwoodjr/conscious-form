@@ -10,15 +10,28 @@ status: "in-progress"
 dissertation: true
 series: "Organic Memory (Triptych)"
 seriesOrder: 2
+videos:
+  - type: "vimeo"
+    id: "1188513574"
+    title: "Did Sun Ra Fear Cryosleep? — Documentation"
+audioSamples:
+  - title: "Dissolution Test 003"
+    src: "/audio/projects/sun-ra-cryosleep/Dissolution_Test_003.wav"
+  - title: "Dissolve Soul — HYPHN"
+    src: "/audio/projects/sun-ra-cryosleep/Dissolve_Soul-00_HYPHN-00_0-2.wav"
+  - title: "Dissolve Test — PZT Parallel Contact"
+    src: "/audio/projects/sun-ra-cryosleep/Dissolve_Test_PZT_Parallel_Contact_001.wav"
+  - title: "Soul Dissolve Sample (120s)"
+    src: "/audio/projects/sun-ra-cryosleep/soul_dissolve_sample_00_120s.wav"
 images:
-  - "/in-processing/sun-ra-cryosleep/IMG_6583.jpeg"
-  - "/in-processing/sun-ra-cryosleep/IMG_6597.jpeg"
-  - "/in-processing/sun-ra-cryosleep/IMG_6605.jpeg"
-  - "/in-processing/sun-ra-cryosleep/IDG_20260409_103110_242.jpeg"
-  - "/in-processing/sun-ra-cryosleep/IDG_20260409_110040_167.jpeg"
-  - "/in-processing/sun-ra-cryosleep/IDG_20260410_102837_949.jpeg"
-  - "/in-processing/sun-ra-cryosleep/IDG_20260410_145857_873.jpeg"
-  - "/in-processing/sun-ra-cryosleep/IMG_7729.jpg"
+  - "/images/projects/sun-ra-cryosleep/IMG_6583.jpeg"
+  - "/images/projects/sun-ra-cryosleep/IMG_6597.jpeg"
+  - "/images/projects/sun-ra-cryosleep/IMG_6605.jpeg"
+  - "/images/projects/sun-ra-cryosleep/IDG_20260409_103110_242.jpeg"
+  - "/images/projects/sun-ra-cryosleep/IDG_20260409_110040_167.jpeg"
+  - "/images/projects/sun-ra-cryosleep/IDG_20260410_102837_949.jpeg"
+  - "/images/projects/sun-ra-cryosleep/IDG_20260410_145857_873.jpeg"
+  - "/images/projects/sun-ra-cryosleep/IMG_7729.jpg"
 ---
 
 Water dissolves. Sugar vanishes into brine. Clay disperses. Salt surrenders its structure to the slow work of liquid. *Did Sun Ra Fear Cryosleep?* captures these dissolution events through DIY hydrophones (piezo membranes pressed against the surface of things ending) and transforms them into granular clouds of synthesis, each texture a kind of speculative memory: what is preserved, what is lost, and who gets to decide.

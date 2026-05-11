@@ -5,6 +5,15 @@ date: 2024-06-01
 tags: ["animation", "3d", "houdini", "unreal", "simulation", "visual"]
 type: "animation"
 thumbnail: "/images/sketchbook/animated-works-thumb.jpg"
+videos:
+  - type: "vimeo"
+    id: "1191189737"
+    hash: "f2d56472bb"
+    title: "The Robotic Rainforest"
+  - type: "vimeo"
+    id: "1191189537"
+    hash: "8c0ab2ccc8"
+    title: "Jedi Cave"
 ---
 
 ## Overview

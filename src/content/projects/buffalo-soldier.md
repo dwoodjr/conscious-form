@@ -11,7 +11,7 @@ dissertation: true
 series: "Organic Memory (Triptych)"
 seriesOrder: 1
 images:
-  - "/in-processing/buffalo-soldier/buffalo_substrate_box.jpg"
+  - "/images/projects/buffalo-soldier/buffalo_substrate_box.jpg"
 ---
 
 Buffalo Soldier inhabits the room before you arrive. Using piezo contact microphones and electret capsules distributed across space, the sculpture translates architectural presence into layered, low-latency spatial sound, a field that responds to proximity, weight, and the invisible acoustics of Black historical inheritance. The work takes its name and its burden seriously: to move through the installation is to move through contested terrain, where the militarized body and the sonic body meet and negotiate.

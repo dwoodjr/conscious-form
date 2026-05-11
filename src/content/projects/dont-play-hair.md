@@ -10,13 +10,17 @@ status: "in-progress"
 dissertation: true
 series: "Organic Memory (Triptych)"
 seriesOrder: 3
+videos:
+  - type: "youtube"
+    id: "G768Sr5Z_n4"
+    title: "Don't Play with My Hair — Documentation"
 images:
-  - "/in-processing/dont-play-hair/Screenshot%202025-11-04%20135859.png"
-  - "/in-processing/dont-play-hair/Screenshot%202025-11-04%20140103.png"
-  - "/in-processing/dont-play-hair/Screenshot%202025-11-04%20141046.png"
-  - "/in-processing/dont-play-hair/Screenshot%202025-11-04%20141624.png"
-  - "/in-processing/dont-play-hair/Screenshot%202025-11-04%20141958.png"
-  - "/in-processing/dont-play-hair/Screenshot%202025-11-25%20181128.png"
+  - "/images/projects/dont-play-hair/dph-screenshot-01.png"
+  - "/images/projects/dont-play-hair/dph-screenshot-02.png"
+  - "/images/projects/dont-play-hair/dph-screenshot-03.png"
+  - "/images/projects/dont-play-hair/dph-screenshot-04.png"
+  - "/images/projects/dont-play-hair/dph-screenshot-05.png"
+  - "/images/projects/dont-play-hair/dph-screenshot-06.png"
 ---
 
 Hair carries signal. It transmits touch. It is a site of intimacy and of violence, of daily ritual and of political confrontation. *Don't Play with My Hair* is a capacitive touch instrument in which the hair itself becomes the interface, a HairSynth that maps the quality, speed, and permission of contact onto layered sonic responses. The piece asks who gets to touch, what touching produces, and what refusal sounds like when it is embodied rather than spoken.
