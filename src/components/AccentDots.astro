@@ -1,9 +1,12 @@
 ---
-// Three dots as a decorative element
+interface Props {
+  interactive?: boolean;
+}
+const { interactive = false } = Astro.props;
 ---
 
 <div class="flex gap-2">
-  <span class="w-3 h-3 rounded-full bg-accent-red"></span>
-  <span class="w-3 h-3 rounded-full bg-accent-yellow"></span>
-  <span class="w-3 h-3 rounded-full bg-accent-blue"></span>
+  <span class="w-3 h-3 rounded-full bg-accent-red"    {...(interactive ? { 'data-accent-dot': 'red'    } : {})}></span>
+  <span class="w-3 h-3 rounded-full bg-accent-yellow" {...(interactive ? { 'data-accent-dot': 'yellow' } : {})}></span>
+  <span class="w-3 h-3 rounded-full bg-accent-blue"   {...(interactive ? { 'data-accent-dot': 'blue'   } : {})}></span>
 </div>
