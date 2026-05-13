@@ -9,7 +9,7 @@ role: "Collaboration | Installation | Art Direction | Art | Design | Development
 featured: true
 document: "/documents/collaborations/mnemosi/womb-black-wealth-project.pdf"
 images:
-  - "/images/collaborations/mnemosi/wombCollageFix_4200x3000.png"
+  - "/images/collaborations/mnemosi/wombCollageFix_4200x3000.jpg"
   - "/images/collaborations/mnemosi/PXL_20230420_000156826.jpg"
   - "/images/collaborations/mnemosi/PXL_20230420_000427391.jpg"
   - "/images/collaborations/mnemosi/PXL_20230425_161605621.jpg"
