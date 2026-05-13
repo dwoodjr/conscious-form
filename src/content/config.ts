@@ -75,6 +75,7 @@ const sketchbook = defineCollection({
     videos: z.array(videoSchema).optional(),
     images: z.array(z.string()).optional(),
     relatedTo: z.array(z.string()).optional(),
+    relatedProjects: z.array(z.string()).optional(),
   }),
 });
 

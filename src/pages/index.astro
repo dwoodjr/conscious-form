@@ -66,50 +66,62 @@ const blue = '#3B82F6';
 
     <!-- MASSIVE name - centered -->
     <div class="min-h-screen flex items-center justify-center">
-      <h1 class="font-display text-[30vw] leading-none tracking-tighter flex gap-[2vw] pb-80">
-        
+      <!-- On mobile: flex-wrap so each word group breaks onto its own row.
+           On desktop: flex-nowrap so all letters run in one continuous line.
+           md:contents on the word spans makes them layout-transparent on desktop,
+           letting all letters participate directly in the parent's uniform gap. -->
+      <h1 class="font-display text-[11vw] md:text-[30vw] leading-none tracking-tighter
+                 flex flex-wrap gap-y-2 gap-x-[1.5vw]
+                 md:flex-nowrap md:gap-[2vw]
+                 pb-12 md:pb-80">
+
         <!-- darren -->
-        {darren.map(({ letter, freq }) => (
-          <span 
-            class="sound-letter cursor-pointer"
-            data-frequency={freq}
-            data-color={red}
-            style={`--hover-color: ${red};`}
-          >
-            {letter}
-          </span>
-        ))}
+        <span class="flex flex-nowrap gap-[1.5vw] md:contents">
+          {darren.map(({ letter, freq }) => (
+            <span
+              class="sound-letter cursor-pointer"
+              data-frequency={freq}
+              data-color={red}
+              style={`--hover-color: ${red};`}
+            >
+              {letter}
+            </span>
+          ))}
+        </span>
 
         <!-- woodland -->
-        {woodland.map(({ letter, freq }) => (
-          <span 
-            class="sound-letter cursor-pointer"
-            data-frequency={freq}
-            data-color={yellow}
-            style={`--hover-color: ${yellow};`}
-          >
-            {letter}
-          </span>
-        ))}
+        <span class="flex flex-nowrap gap-[1.5vw] md:contents">
+          {woodland.map(({ letter, freq }) => (
+            <span
+              class="sound-letter cursor-pointer"
+              data-frequency={freq}
+              data-color={yellow}
+              style={`--hover-color: ${yellow};`}
+            >
+              {letter}
+            </span>
+          ))}
+        </span>
 
         <!-- jr -->
-        {jr.map(({ letter, freq }) => (
-          <span 
-            class="sound-letter cursor-pointer"
-            data-frequency={freq}
-            data-color={blue}
-            style={`--hover-color: ${blue};`}
-          >
-            {letter}
-          </span>
-        ))}
+        <span class="flex flex-nowrap gap-[1.5vw] md:contents">
+          {jr.map(({ letter, freq }) => (
+            <span
+              class="sound-letter cursor-pointer"
+              data-frequency={freq}
+              data-color={blue}
+              style={`--hover-color: ${blue};`}
+            >
+              {letter}
+            </span>
+          ))}
+        </span>
 
       </h1>
     </div>
 
-
       <!-- Subtitle below initials -->
-    <div class="text-center mb-16">
+    <div class="text-center mb-16 px-4">
       <h2 class="text-3xl text-neutral-400 mb-4">Darren Woodland, Jr.</h2>
       <p class="text-xl text-neutral-400 mb-8 max-w-2xl mx-auto">
         Cross-disciplinary researcher working at the intersection of

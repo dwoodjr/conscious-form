@@ -21,7 +21,7 @@ const seriesTitle = current.data.series!;
   <a href={seriesHref} class="text-lg font-semibold hover:text-white transition-colors mb-5 block">
     {seriesTitle}
   </a>
-  <div class="grid grid-cols-3 gap-3">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
     {siblings.map(sibling => {
       const isCurrent = sibling.slug === current.slug;
       return (

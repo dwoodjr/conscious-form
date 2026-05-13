@@ -7,11 +7,29 @@ const sortedItems = [...sketchbookItems].sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
 
+// Collect referenced project/collab slugs across all sketchbook entries
+const referencedSlugs = new Set<string>();
+sketchbookItems.forEach(item => {
+  (item.data.relatedProjects ?? []).forEach(s => referencedSlugs.add(s));
+});
+
+// Fetch and filter referenced works
+const allProjects = await getCollection('projects');
+const allCollaborations = await getCollection('collaborations');
+const referencedWorks = [
+  ...allProjects
+    .filter(p => referencedSlugs.has(p.slug))
+    .map(p => ({ slug: p.slug, data: p.data, href: `/projects/${p.slug}`, collectionType: 'project' as const })),
+  ...allCollaborations
+    .filter(c => referencedSlugs.has(c.slug))
+    .map(c => ({ slug: c.slug, data: c.data, href: `/collaborations/${c.slug}`, collectionType: 'collaboration' as const })),
+];
+
 function getNodeColor(item: CollectionEntry<'sketchbook'>): string {
   const tags = item.data.tags ?? [];
   if (tags.some(t => ['sound', 'audio', 'synthesis', 'max'].includes(t))) return '#E63946';
   if (tags.some(t => ['animation', '3d', 'visual', 'houdini', 'video', 'unreal'].includes(t))) return '#F4D03F';
-  if (tags.some(t => ['code', 'patch', 'interactive', 'web'].includes(t))) return '#3B82F6';
+  if (tags.some(t => ['code', 'patch', 'interactive', 'web', 'physical-computing'].includes(t))) return '#3B82F6';
   return '#e5e5e5';
 }
 
@@ -33,6 +51,7 @@ interface NodeData {
   href: string;
   audioPreview: string | null;
   videoPreview: string | null;
+  nodeType: 'sketchbook' | 'project';
 }
 
 interface LinkData {
@@ -41,9 +60,7 @@ interface LinkData {
   explicit: boolean;
 }
 
-const slugSet = new Set(sortedItems.map(i => i.slug));
-
-const graphNodes: NodeData[] = sortedItems.map((item, index) => ({
+const sketchbookNodes: NodeData[] = sortedItems.map((item, index) => ({
   id: item.slug,
   title: item.data.title,
   color: getNodeColor(item),
@@ -54,11 +71,30 @@ const graphNodes: NodeData[] = sortedItems.map((item, index) => ({
   href: `/sketchbook/${item.slug}`,
   audioPreview: item.data.audioPreview ?? null,
   videoPreview: item.data.videoPreview ?? null,
+  nodeType: 'sketchbook',
 }));
 
-// Explicit edges from relatedTo (deduplicated, broken refs skipped)
+const projectNodes: NodeData[] = referencedWorks.map(p => ({
+  id: `proj:${p.slug}`,
+  title: p.data.title,
+  color: '#a855f7',
+  radius: 26,
+  thumbnail: p.data.thumbnail ?? null,
+  tags: p.data.tags ?? [],
+  description: p.data.description,
+  href: p.href,
+  audioPreview: null,
+  videoPreview: null,
+  nodeType: 'project',
+}));
+
+const graphNodes: NodeData[] = [...sketchbookNodes, ...projectNodes];
+const slugSet = new Set(sortedItems.map(i => i.slug));
+
 const seenKeys = new Set<string>();
 const explicitEdges: LinkData[] = [];
+
+// Intra-sketchbook explicit edges from relatedTo
 sortedItems.forEach(item => {
   (item.data.relatedTo ?? []).forEach(slug => {
     if (!slugSet.has(slug)) return;
@@ -70,13 +106,26 @@ sortedItems.forEach(item => {
   });
 });
 
-// Loose all-pairs edges for the web texture
-const looseEdges: LinkData[] = [];
-for (let i = 0; i < graphNodes.length; i++) {
-  for (let j = i + 1; j < graphNodes.length; j++) {
-    const key = [graphNodes[i].id, graphNodes[j].id].sort().join('|');
+// Cross-collection edges from relatedProjects
+sortedItems.forEach(item => {
+  (item.data.relatedProjects ?? []).forEach(projSlug => {
+    const nodeId = `proj:${projSlug}`;
+    if (!graphNodes.find(n => n.id === nodeId)) return;
+    const key = [item.slug, nodeId].sort().join('|');
     if (!seenKeys.has(key)) {
-      looseEdges.push({ source: graphNodes[i].id, target: graphNodes[j].id, explicit: false });
+      seenKeys.add(key);
+      explicitEdges.push({ source: item.slug, target: nodeId, explicit: true });
+    }
+  });
+});
+
+// Loose web texture — sketchbook nodes only
+const looseEdges: LinkData[] = [];
+for (let i = 0; i < sketchbookNodes.length; i++) {
+  for (let j = i + 1; j < sketchbookNodes.length; j++) {
+    const key = [sketchbookNodes[i].id, sketchbookNodes[j].id].sort().join('|');
+    if (!seenKeys.has(key)) {
+      looseEdges.push({ source: sketchbookNodes[i].id, target: sketchbookNodes[j].id, explicit: false });
     }
   }
 }
@@ -117,6 +166,7 @@ const hasItems = sortedItems.length > 0;
         <img id="preview-thumb" class="preview-thumb" src="" alt="" />
       </div>
       <div class="preview-body">
+        <div id="preview-type-badge" class="preview-type-badge"></div>
         <h3 id="preview-title" class="preview-title"></h3>
         <div id="preview-tags" class="preview-tags"></div>
         <p id="preview-desc" class="preview-desc"></p>
@@ -127,8 +177,8 @@ const hasItems = sortedItems.length > 0;
     <div class="graph-legend" aria-hidden="true">
       <span class="legend-item"><span class="legend-dot" style="background:#E63946"></span>Sound</span>
       <span class="legend-item"><span class="legend-dot" style="background:#F4D03F"></span>Visual</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#3B82F6"></span>Code</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#e5e5e5"></span>Other</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#3B82F6"></span>Code / Interactive</span>
+      <span class="legend-item"><span class="legend-dot legend-dot--dashed" style="border-color:#a855f7"></span>Project</span>
     </div>
 
   </div>
@@ -228,6 +278,21 @@ const hasItems = sortedItems.length > 0;
   .preview-thumb-wrap.hidden { display: none; }
   .preview-thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+  .preview-type-badge {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-bottom: 0.35rem;
+    background: #1a0a2e;
+    color: #a855f7;
+    border: 1px solid #3d1e6e;
+  }
+  .preview-type-badge:empty { display: none; }
+
   .preview-title {
     font-size: 0.96rem;
     font-weight: 600;
@@ -273,6 +338,11 @@ const hasItems = sortedItems.length > 0;
     transition: background 0.15s, border-color 0.15s;
   }
   .preview-visit:hover { background: #272727; border-color: #555; }
+  .preview-visit.project-link {
+    border-color: #3d1e6e;
+    color: #c084fc;
+  }
+  .preview-visit.project-link:hover { background: #1a0a2e; border-color: #6b21a8; }
 
   /* ── Legend ──────────────────────────────────── */
   .graph-legend {
@@ -284,7 +354,18 @@ const hasItems = sortedItems.length > 0;
     color: #525252;
   }
   .legend-item { display: flex; align-items: center; gap: 0.35rem; }
-  .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; opacity: 0.85; }
+  .legend-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    opacity: 0.85;
+  }
+  .legend-dot--dashed {
+    background: transparent;
+    border: 1.5px dashed;
+    opacity: 1;
+  }
 </style>
 
 <script>
@@ -313,6 +394,7 @@ const hasItems = sortedItems.length > 0;
     href: string;
     audioPreview: string | null;
     videoPreview: string | null;
+    nodeType: 'sketchbook' | 'project';
   }
 
   interface LinkDatum extends SimulationLinkDatum<NodeDatum> {
@@ -366,7 +448,7 @@ const hasItems = sortedItems.length > 0;
       .force('center', forceCenter<NodeDatum>(W / 2, H / 2).strength(0.05))
       .force('collide', forceCollide<NodeDatum>().radius(d => d.radius + 10).strength(0.85))
       .alphaDecay(0.007)
-      .alphaTarget(0.06)    // never fully settles — perpetual gentle float
+      .alphaTarget(0.06)
       .velocityDecay(0.72);
 
     // ── Edges ─────────────────────────────────────────────────────────────
@@ -374,8 +456,14 @@ const hasItems = sortedItems.length > 0;
       .selectAll<SVGLineElement, LinkDatum>('line')
       .data(links as LinkDatum[])
       .join('line')
-      .attr('stroke', d => d.explicit ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.05)')
-      .attr('stroke-width', d => d.explicit ? 1.5 : 0.5);
+      .attr('stroke', d => d.explicit ? 'rgba(168,85,247,0.35)' : 'rgba(255,255,255,0.05)')
+      .attr('stroke-width', d => d.explicit ? 1.5 : 0.5)
+      .attr('stroke-dasharray', d => {
+        const s = asNode(d.source);
+        const t = asNode(d.target);
+        if (s.nodeType === 'project' || t.nodeType === 'project') return '4,3';
+        return d.explicit ? null : null;
+      });
 
     // ── Nodes ─────────────────────────────────────────────────────────────
     const nodeEls = nodesLayer
@@ -385,18 +473,22 @@ const hasItems = sortedItems.length > 0;
       .attr('class', 'node')
       .style('cursor', 'pointer');
 
-    // Circle
+    // Circle — project nodes get dashed stroke and no fill
     nodeEls.append('circle')
       .attr('r', d => d.radius)
-      .attr('fill', d => d.color + '18')
+      .attr('fill', d => {
+        if (d.nodeType === 'project') return 'none';
+        return d.thumbnail ? d.color + '0c' : d.color + '18';
+      })
       .attr('stroke', d => d.color)
-      .attr('stroke-width', 2);
+      .attr('stroke-width', d => d.nodeType === 'project' ? 2 : 2)
+      .attr('stroke-dasharray', d => d.nodeType === 'project' ? '5,3' : null);
 
-    // Thumbnail via SVG clipPath + image
+    // Thumbnail via SVG clipPath + image (both sketchbook and project nodes)
     nodeEls.each(function(d) {
       if (!d.thumbnail) return;
       const g = select(this);
-      const clipId = `clip-${d.id}`;
+      const clipId = `clip-${d.id.replace(/[^a-z0-9]/gi, '-')}`;
       defs.append('clipPath').attr('id', clipId)
         .append('circle').attr('r', d.radius - 1);
       g.append('image')
@@ -405,7 +497,7 @@ const hasItems = sortedItems.length > 0;
         .attr('width', (d.radius - 1) * 2).attr('height', (d.radius - 1) * 2)
         .attr('clip-path', `url(#${clipId})`)
         .attr('preserveAspectRatio', 'xMidYMid slice')
-        .attr('opacity', 0.6);
+        .attr('opacity', d.nodeType === 'project' ? 0.45 : 0.88);
     });
 
     // Label
@@ -413,7 +505,7 @@ const hasItems = sortedItems.length > 0;
       .attr('class', 'node-label')
       .attr('dy', d => d.radius + 13)
       .attr('text-anchor', 'middle')
-      .attr('fill', '#4a4a4a')
+      .attr('fill', d => d.nodeType === 'project' ? '#7c3aed' : '#4a4a4a')
       .attr('font-size', '11')
       .attr('font-family', 'Inter, sans-serif')
       .attr('pointer-events', 'none')
@@ -434,13 +526,18 @@ const hasItems = sortedItems.length > 0;
 
         nodeEls.style('opacity', n => connected.has(n.id) ? '1' : '0.12');
         nodeEls.select<SVGTextElement>('text')
-          .attr('fill', n => n.id === d.id ? '#c8c8c8' : '#4a4a4a');
+          .attr('fill', n => {
+            if (n.id === d.id) return '#c8c8c8';
+            return n.nodeType === 'project' ? '#7c3aed' : '#4a4a4a';
+          });
 
         linkEls.attr('stroke', l => {
           const s = asNode(l.source).id;
           const t = asNode(l.target).id;
           const hit = s === d.id || t === d.id;
           if (!hit) return 'rgba(255,255,255,0.02)';
+          const crossProject = asNode(l.source).nodeType === 'project' || asNode(l.target).nodeType === 'project';
+          if (crossProject) return hit ? 'rgba(168,85,247,0.9)' : 'rgba(168,85,247,0.08)';
           return l.explicit ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.22)';
         });
 
@@ -456,8 +553,15 @@ const hasItems = sortedItems.length > 0;
       })
       .on('mouseleave', function(_, d) {
         nodeEls.style('opacity', '1');
-        nodeEls.select<SVGTextElement>('text').attr('fill', '#4a4a4a');
-        linkEls.attr('stroke', l => l.explicit ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.05)');
+        nodeEls.select<SVGTextElement>('text').attr('fill', n =>
+          n.nodeType === 'project' ? '#7c3aed' : '#4a4a4a'
+        );
+        linkEls
+          .attr('stroke', l => {
+            const crossProject = asNode(l.source).nodeType === 'project' || asNode(l.target).nodeType === 'project';
+            if (crossProject) return 'rgba(168,85,247,0.35)';
+            return l.explicit ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.05)';
+          });
         select(this).select<SVGCircleElement>('circle')
           .attr('r', d.radius)
           .attr('stroke-width', 2);
@@ -465,20 +569,31 @@ const hasItems = sortedItems.length > 0;
       });
 
     // ── Click → preview panel ─────────────────────────────────────────────
-    const panel       = document.getElementById('preview-panel')!;
-    const panelClose  = document.getElementById('preview-close')!;
-    const thumbWrap   = document.getElementById('preview-thumb-wrap')!;
-    const panelThumb  = document.getElementById('preview-thumb') as HTMLImageElement;
-    const panelTitle  = document.getElementById('preview-title')!;
-    const panelTags   = document.getElementById('preview-tags')!;
-    const panelDesc   = document.getElementById('preview-desc')!;
-    const panelVisit  = document.getElementById('preview-visit') as HTMLAnchorElement;
+    const panel        = document.getElementById('preview-panel')!;
+    const panelClose   = document.getElementById('preview-close')!;
+    const thumbWrap    = document.getElementById('preview-thumb-wrap')!;
+    const panelThumb   = document.getElementById('preview-thumb') as HTMLImageElement;
+    const panelBadge   = document.getElementById('preview-type-badge')!;
+    const panelTitle   = document.getElementById('preview-title')!;
+    const panelTags    = document.getElementById('preview-tags')!;
+    const panelDesc    = document.getElementById('preview-desc')!;
+    const panelVisit   = document.getElementById('preview-visit') as HTMLAnchorElement;
 
     function showPanel(d: NodeDatum) {
       panelTitle.textContent = d.title;
       panelDesc.textContent  = d.description;
       panelVisit.href        = d.href;
       panelTags.innerHTML    = d.tags.map(t => `<span class="preview-tag">${t}</span>`).join('');
+
+      if (d.nodeType === 'project') {
+        panelBadge.textContent = 'Project';
+        panelVisit.textContent = 'Open Project →';
+        panelVisit.classList.add('project-link');
+      } else {
+        panelBadge.textContent = '';
+        panelVisit.textContent = 'Open →';
+        panelVisit.classList.remove('project-link');
+      }
 
       if (d.thumbnail) {
         panelThumb.src = d.thumbnail;

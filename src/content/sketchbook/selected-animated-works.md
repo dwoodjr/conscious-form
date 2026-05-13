@@ -4,7 +4,6 @@ description: "A collection of animations and simulations created with Houdini an
 date: 2024-06-01
 tags: ["animation", "3d", "houdini", "unreal", "simulation", "visual"]
 type: "animation"
-thumbnail: "/images/sketchbook/animated-works-thumb.jpg"
 videos:
   - type: "vimeo"
     id: "1191189737"

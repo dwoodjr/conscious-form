@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import VideoEmbed from '../../components/VideoEmbed.astro';
+import ImageGallery from '../../components/ImageGallery.astro';
 
 export async function getStaticPaths() {
   const sketchbookItems = await getCollection('sketchbook');
@@ -13,6 +14,9 @@ export async function getStaticPaths() {
 
 const { item } = Astro.props;
 const { Content } = await item.render();
+
+const hasVideos = item.data.videos && item.data.videos.length > 0;
+const hasImages = item.data.images && item.data.images.length > 0;
 ---
 
 <BaseLayout title={`${item.data.title} | Sketchbook`} description={item.data.description}>
@@ -72,27 +76,40 @@ const { Content } = await item.render();
       </div>
     )}
 
-    {/* Hosted videos */}
-    {item.data.videos && item.data.videos.length > 0 && (
-      <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-6">
-          {item.data.videos.length === 1 ? 'Video' : 'Videos'}
-        </h2>
-        {item.data.videos.map((video, i) => (
-          <div class="mb-4">
-            {video.title && (
-              <p class="text-neutral-400 text-sm mb-2">{video.title}</p>
-            )}
-            <VideoEmbed video={video} index={i} />
-          </div>
-        ))}
-      </div>
-    )}
-
     {/* Markdown content */}
-    <div class="markdown-content">
+    <div class="prose prose-invert max-w-none mb-12">
       <Content />
     </div>
+
+    {/* Videos + Image Gallery */}
+    {(hasVideos || hasImages) && (
+      <div class="mb-8 flex flex-col">
+
+        {hasVideos && (
+          <div class="w-full mb-4">
+            <h2 class="text-2xl font-semibold mb-6">
+              {item.data.videos!.length === 1 ? 'Video' : 'Videos'}
+            </h2>
+            {item.data.videos!.map((video, i) => (
+              <div class="mb-4">
+                {video.title && (
+                  <p class="text-neutral-400 text-sm mb-2">{video.title}</p>
+                )}
+                <VideoEmbed video={video} index={i} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {hasImages && (
+          <div class="w-full">
+            <h2 class="text-2xl font-semibold mb-6">Documentation</h2>
+            <ImageGallery images={item.data.images!} title={item.data.title} />
+          </div>
+        )}
+
+      </div>
+    )}
     
   </article>
 </BaseLayout>
