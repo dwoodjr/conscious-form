@@ -19,6 +19,7 @@ const projects = defineCollection({
     tags: z.array(z.string()),
     thumbnail: z.string().optional(),
     featured: z.boolean().default(false),
+    order: z.number().optional(),
     videos: z.array(videoSchema).optional(),      // Multiple videos
     images: z.array(z.string()).optional(),        // Image gallery paths
     mediaTypes: z.array(z.enum([
@@ -51,9 +52,14 @@ const collaborations = defineCollection({
     partner: z.string(),
     role: z.string(),
     featured: z.boolean().default(false),
+    order: z.number().optional(),
     videos: z.array(videoSchema).optional(),
     images: z.array(z.string()).optional(),
     document: z.string().optional(),
+    thumbnailCredit: z.object({
+      name: z.string(),
+      url: z.string().optional(),
+    }).optional(),
     imageCredit: z.object({
       name: z.string(),
       url: z.string().optional(),

@@ -7,6 +7,7 @@ thumbnail: "/images/collaborations/hiim/hiim_thumb.jpg"
 partner: "Colorado Conservatory of Dance (CCD) + Sandra Park, Arefeh Ahmadi"
 role: "Collaboration | Art Direction | Art | Design | Animation | Simulation | Dance Performance"
 featured: true
+order: 4
 imageCredit:
   name: "Colorado Conservatory of Dance"
   url: "https://ccdance.org/"

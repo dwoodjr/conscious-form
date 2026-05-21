@@ -5,6 +5,7 @@ date: 2025-03-15
 tags: ["sound", "installation", "speculative-design", "afrofuturism"]
 thumbnail: "/images/projects/sun-ra-cryosleep/sun-ra-thumb.jpg"
 featured: true
+order: 1
 mediaTypes: ["sound", "installation", "interactive"]
 status: "in-progress"
 dissertation: true

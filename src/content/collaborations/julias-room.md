@@ -7,6 +7,7 @@ thumbnail: "/images/collaborations/julias-room/julias-room-installation.png"
 partner: "Dave Hannon — Drexel University, Digital Media PhD"
 role: "AR Development | TouchDesigner | Projection | Technical Production"
 featured: false
+order: 2
 videos:
   - type: "vimeo"
     id: "1191193705"
@@ -34,9 +35,9 @@ images:
 
 ## Overview
 
-An exhibition by Dave Hannon engaging queer world-building through the avatar Julia — a character Dave developed to reconstruct a narrative about growing up queer in a heteronormative environment. Presented at Drexel University's Pearlstein Gallery, the show brought together sculpture, projection, augmented reality, and interactive digital performance to fabricate alternative queer spaces and explore themes of queer failure and domestic intimacy.
+Julia's Room is an exhibition by artist [Dave Hannon](https://davidmccordhannon.com). The work centers on Julia — a character Dave developed as a vehicle for reconstructing a narrative about growing up queer in a heteronormative environment. Presented at Drexel University's Pearlstein Gallery, the show brought together sculpture, projection, augmented reality, and interactive digital performance to fabricate alternative queer spaces and explore themes of queer failure and domestic intimacy.
 
-I collaborated on the technical production alongside Nicolas Losada and Arefeh Ahmadi, both PhD students in Digital Media at Drexel.
+Dave conceived and led the full exhibition. I joined as a technical collaborator alongside Nicolas Losada and Arefeh Ahmadi, both PhD students in Digital Media at Drexel, building out the interactive and AR systems that brought the work to life in the gallery.
 
 ## AR Development
 
@@ -60,4 +61,11 @@ An eight-foot tall mirror piece using a Kinect and live video feed with hand tra
 ## Miniature
 
 A handbuilt scale model of Julia's room that served as a source work for much of the larger installation. I helped with physical setup and projection calibration for this piece, and contributed to the broader logistics of mounting the show.
+
+## Press and Links
+
+- [Philadelphia Fringe Festival — Julia's Room](https://phillyfringe.org/event-archive/julias-room/)
+- [Drexel Westphal — Event Listing](https://drexel.edu/westphal/news-events/events/details/?eid=41045&iid=109827)
+- [Dave Hannon — Instagram](https://www.instagram.com/bagelqueen4u/)
+- [Dave Hannon — Portfolio](https://davidmccordhannon.com)
 

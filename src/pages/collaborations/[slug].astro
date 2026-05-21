@@ -58,6 +58,22 @@ const hasDocument = !!collab.data.document;
           alt={collab.data.title}
           class="w-full rounded-lg object-cover"
         />
+        {collab.data.thumbnailCredit && (
+          <p class="text-xs text-neutral-500 mt-2">
+            {collab.data.thumbnailCredit.url ? (
+              <a
+                href={collab.data.thumbnailCredit.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hover:text-neutral-300 transition-colors underline underline-offset-2"
+              >
+                {collab.data.thumbnailCredit.name}
+              </a>
+            ) : (
+              collab.data.thumbnailCredit.name
+            )}
+          </p>
+        )}
       </div>
     )}
 

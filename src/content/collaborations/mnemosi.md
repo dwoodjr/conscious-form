@@ -7,6 +7,7 @@ thumbnail: "/images/collaborations/mnemosi/mnemosi-thumb.png"
 partner: "Drexel University - Rankin Scholar: Maria Bauman (MBDance)"
 role: "Collaboration | Installation | Art Direction | Art | Design | Development | Audio Engineering"
 featured: true
+order: 3
 document: "/documents/collaborations/mnemosi/womb-black-wealth-project.pdf"
 images:
   - "/images/collaborations/mnemosi/wombCollageFix_4200x3000.jpg"
@@ -61,11 +62,25 @@ videos:
 
 ## Overview
 
-An interactive audiovisual installation done in collaboration with [MBDance](https://mbdance.net/) where participants were invited to leave a message of abundance and growth to nourish the future. Each message feeding Mnemosi, until she grows into a beautiful young Black Girl.
+A participatory interactive installation created in collaboration with MBDance (Maria Bauman),
+presented as part of Womb: The Black Wealth Project at Drexel University's Pearlstein Gallery.
+Participants were invited to leave a message of abundance and growth. Each message fed Mnemosi,
+who grew over the course of the installation into a young Black girl.
 
-The installation and events surrounding the artist in residence, titled *Womb: The Black Wealth Project* were hosted at Drexel University's Pearlstein Gallery.
+## Concept and Approach
+
+The interaction model was built around a single low-barrier gesture: leaving a message.
+The challenge was making that input feel consequential without requiring any technical
+knowledge from participants. I designed the audiovisual response system so each
+contribution visibly and audibly changed the state of the piece, creating a feedback
+loop between individual action and collective growth. The spatial layout guided visitors
+through a clear arc: approach, contribute, witness.
+
+The system combined real-time audio processing, generative visuals, and a custom
+pipeline for message capture and transformation. I handled concept design, spatial
+layout, interaction model, audio engineering, and full technical development.
 
 ## Role
 
-Collaboration | Installation | Art Direction | Art | Design | Development | Audio Engineering
+Collaboration · Art Direction · Installation Design · Interaction Design · Development · Audio Engineering
 

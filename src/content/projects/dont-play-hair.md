@@ -5,6 +5,7 @@ date: 2025-08-15
 tags: ["sound", "physical-computing", "speculative-design", "identity"]
 thumbnail: "/images/projects/dont-play-hair/hair-synth-thumb.jpg"
 featured: true
+order: 3
 mediaTypes: ["sound", "physical-computing", "interactive"]
 status: "in-progress"
 dissertation: true

@@ -5,6 +5,7 @@ date: 2025-01-01
 tags: ["sound", "speculative-design", "history", "narrative"]
 thumbnail: "/images/projects/buffalo-soldier/buffalo-soldier-thumb.jpg"
 featured: true
+order: 2
 mediaTypes: ["sound", "interactive"]
 status: "in-progress"
 dissertation: true
