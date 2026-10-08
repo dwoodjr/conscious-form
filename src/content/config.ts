@@ -67,7 +67,7 @@ const collaborations = defineCollection({
   }),
 });
 
-const sketchbook = defineCollection({
+const experiments = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
@@ -100,6 +100,6 @@ const blog = defineCollection({
 export const collections = {
   projects,
   collaborations,
-  sketchbook,
+  experiments,
   blog
 };

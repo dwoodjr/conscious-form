@@ -5,8 +5,8 @@ import VideoEmbed from '../../components/VideoEmbed.astro';
 import ImageGallery from '../../components/ImageGallery.astro';
 
 export async function getStaticPaths() {
-  const sketchbookItems = await getCollection('sketchbook');
-  return sketchbookItems.map(item => ({
+  const experimentItems = await getCollection('experiments');
+  return experimentItems.map(item => ({
     params: { slug: item.slug },
     props: { item },
   }));
@@ -19,12 +19,12 @@ const hasVideos = item.data.videos && item.data.videos.length > 0;
 const hasImages = item.data.images && item.data.images.length > 0;
 ---
 
-<BaseLayout title={`${item.data.title} | Sketchbook`} description={item.data.description}>
+<BaseLayout title={`${item.data.title} | Experiments`} description={item.data.description}>
   <article class="max-w-4xl mx-auto px-4 py-16">
-    
+
     <header class="mb-8">
-      <a href="/sketchbook" class="text-neutral-400 hover:text-white transition-colors mb-4 inline-block">
-        ← Back to Sketchbook
+      <a href="/experiments" class="text-neutral-400 hover:text-white transition-colors mb-4 inline-block">
+        ← Back to Experiments
       </a>
       
       <h1 class="text-4xl font-bold mb-4">{item.data.title}</h1>

@@ -2,14 +2,14 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const sketchbookItems = await getCollection('sketchbook');
-const sortedItems = [...sketchbookItems].sort(
+const experimentItems = await getCollection('experiments');
+const sortedItems = [...experimentItems].sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
 
-// Collect referenced project/collab slugs across all sketchbook entries
+// Collect referenced project/collab slugs across all experiment entries
 const referencedSlugs = new Set<string>();
-sketchbookItems.forEach(item => {
+experimentItems.forEach(item => {
   (item.data.relatedProjects ?? []).forEach(s => referencedSlugs.add(s));
 });
 
@@ -25,7 +25,7 @@ const referencedWorks = [
     .map(c => ({ slug: c.slug, data: c.data, href: `/collaborations/${c.slug}`, collectionType: 'collaboration' as const })),
 ];
 
-function getNodeColor(item: CollectionEntry<'sketchbook'>): string {
+function getNodeColor(item: CollectionEntry<'experiments'>): string {
   const tags = item.data.tags ?? [];
   if (tags.some(t => ['sound', 'audio', 'synthesis', 'max'].includes(t))) return '#E63946';
   if (tags.some(t => ['animation', '3d', 'visual', 'houdini', 'video', 'unreal'].includes(t))) return '#F4D03F';
@@ -51,7 +51,7 @@ interface NodeData {
   href: string;
   audioPreview: string | null;
   videoPreview: string | null;
-  nodeType: 'sketchbook' | 'project';
+  nodeType: 'experiment' | 'project';
 }
 
 interface LinkData {
@@ -60,7 +60,7 @@ interface LinkData {
   explicit: boolean;
 }
 
-const sketchbookNodes: NodeData[] = sortedItems.map((item, index) => ({
+const experimentNodes: NodeData[] = sortedItems.map((item, index) => ({
   id: item.slug,
   title: item.data.title,
   color: getNodeColor(item),
@@ -68,10 +68,10 @@ const sketchbookNodes: NodeData[] = sortedItems.map((item, index) => ({
   thumbnail: item.data.thumbnail ?? null,
   tags: item.data.tags ?? [],
   description: item.data.description,
-  href: `/sketchbook/${item.slug}`,
+  href: `/experiments/${item.slug}`,
   audioPreview: item.data.audioPreview ?? null,
   videoPreview: item.data.videoPreview ?? null,
-  nodeType: 'sketchbook',
+  nodeType: 'experiment',
 }));
 
 const projectNodes: NodeData[] = referencedWorks.map(p => ({
@@ -88,13 +88,13 @@ const projectNodes: NodeData[] = referencedWorks.map(p => ({
   nodeType: 'project',
 }));
 
-const graphNodes: NodeData[] = [...sketchbookNodes, ...projectNodes];
+const graphNodes: NodeData[] = [...experimentNodes, ...projectNodes];
 const slugSet = new Set(sortedItems.map(i => i.slug));
 
 const seenKeys = new Set<string>();
 const explicitEdges: LinkData[] = [];
 
-// Intra-sketchbook explicit edges from relatedTo
+// Intra-experiments explicit edges from relatedTo
 sortedItems.forEach(item => {
   (item.data.relatedTo ?? []).forEach(slug => {
     if (!slugSet.has(slug)) return;
@@ -119,13 +119,13 @@ sortedItems.forEach(item => {
   });
 });
 
-// Loose web texture — sketchbook nodes only
+// Loose web texture — experiment nodes only
 const looseEdges: LinkData[] = [];
-for (let i = 0; i < sketchbookNodes.length; i++) {
-  for (let j = i + 1; j < sketchbookNodes.length; j++) {
-    const key = [sketchbookNodes[i].id, sketchbookNodes[j].id].sort().join('|');
+for (let i = 0; i < experimentNodes.length; i++) {
+  for (let j = i + 1; j < experimentNodes.length; j++) {
+    const key = [experimentNodes[i].id, experimentNodes[j].id].sort().join('|');
     if (!seenKeys.has(key)) {
-      looseEdges.push({ source: sketchbookNodes[i].id, target: sketchbookNodes[j].id, explicit: false });
+      looseEdges.push({ source: experimentNodes[i].id, target: experimentNodes[j].id, explicit: false });
     }
   }
 }
@@ -134,12 +134,12 @@ const graphData = { nodes: graphNodes, links: [...explicitEdges, ...looseEdges] 
 const hasItems = sortedItems.length > 0;
 ---
 
-<BaseLayout title="Sketchbook | Conscious Form">
+<BaseLayout title="Experiments | Conscious Form">
 
   <div class="sketchbook-wrapper">
 
     <div class="sketchbook-header">
-      <h1 class="text-4xl font-bold mb-1">Sketchbook</h1>
+      <h1 class="text-4xl font-bold mb-1">Experiments</h1>
       <p class="text-neutral-400 text-sm">
         Experiments, explorations, ephemera. Click a node to explore.
       </p>
@@ -147,7 +147,7 @@ const hasItems = sortedItems.length > 0;
 
     <div id="graph-container">
       {hasItems ? (
-        <svg id="graph-svg" aria-label="Sketchbook graph">
+        <svg id="graph-svg" aria-label="Experiments graph">
           <defs id="svg-defs"></defs>
           <g id="zoom-layer">
             <g id="links-layer"></g>
@@ -186,8 +186,8 @@ const hasItems = sortedItems.length > 0;
 </BaseLayout>
 
 <script define:vars={{ graphData, hasItems }} is:inline>
-  window.__sketchbookGraph = graphData;
-  window.__sketchbookHasItems = hasItems;
+  window.__experimentsGraph = graphData;
+  window.__experimentsHasItems = hasItems;
 </script>
 
 <style>
@@ -394,7 +394,7 @@ const hasItems = sortedItems.length > 0;
     href: string;
     audioPreview: string | null;
     videoPreview: string | null;
-    nodeType: 'sketchbook' | 'project';
+    nodeType: 'experiment' | 'project';
   }
 
   interface LinkDatum extends SimulationLinkDatum<NodeDatum> {
@@ -407,13 +407,13 @@ const hasItems = sortedItems.length > 0;
 
   // ── Guard ──────────────────────────────────────────────────────────────
   const w = window as typeof window & {
-    __sketchbookGraph: { nodes: NodeDatum[]; links: LinkDatum[] };
-    __sketchbookHasItems: boolean;
+    __experimentsGraph: { nodes: NodeDatum[]; links: LinkDatum[] };
+    __experimentsHasItems: boolean;
   };
-  if (!w.__sketchbookHasItems) {
+  if (!w.__experimentsHasItems) {
     // no items — static empty state is already rendered
   } else {
-    const { nodes, links } = w.__sketchbookGraph;
+    const { nodes, links } = w.__experimentsGraph;
 
     // ── DOM ───────────────────────────────────────────────────────────────
     const container = document.getElementById('graph-container')!;
@@ -484,7 +484,7 @@ const hasItems = sortedItems.length > 0;
       .attr('stroke-width', d => d.nodeType === 'project' ? 2 : 2)
       .attr('stroke-dasharray', d => d.nodeType === 'project' ? '5,3' : null);
 
-    // Thumbnail via SVG clipPath + image (both sketchbook and project nodes)
+    // Thumbnail via SVG clipPath + image (both experiment and project nodes)
     nodeEls.each(function(d) {
       if (!d.thumbnail) return;
       const g = select(this);

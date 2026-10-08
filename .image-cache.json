@@ -78,5 +78,19 @@
   "public/images/collaborations/mnemosi/mnemosi-thumb.png": "0ebfedf03a3f22ad",
   "public/images/projects/buffalo-soldier/buffalo-soldier-thumb-alt.jpg": "9261c380bd9776dc",
   "public/images/projects/dont-play-hair/dph-screenshot-01.png": "79f09dd7310d658f",
-  "public/images/projects/harmonic-threads/harmonic-threads-thumb.png": "f179a26c1f629003"
+  "public/images/projects/harmonic-threads/harmonic-threads-thumb.png": "f179a26c1f629003",
+  "public/images/collaborations/black-ice-vr/black-ice-splash.jpg": "05e35f86830d15b9",
+  "public/images/collaborations/black-ice-vr/destruction-wwise.png": "4c70c4e8fb93fde3",
+  "public/images/collaborations/black-ice-vr/embody-spheres.png": "d57ac17226c81a16",
+  "public/images/collaborations/black-ice-vr/memory-space.png": "bca7d5c09881d227",
+  "public/images/collaborations/black-ice-vr/office-1.png": "3a85d4ce89b4929e",
+  "public/images/collaborations/black-ice-vr/rin-in-chair.png": "714ee655bd34b7e8",
+  "public/images/collaborations/black-ice-vr/screenshot-unreal.png": "1df276585110b193",
+  "public/images/projects/bioreact-ar/early-dev-model.jpg": "3e7fee64f994b6fc",
+  "public/images/projects/bioreact-ar/passthrough-full-system.jpg": "affe16b275c65333",
+  "public/images/projects/bioreact-ar/passthrough-quest-overlay.jpg": "52dfdaf86d1f5534",
+  "public/images/projects/bioreact-ar/passthrough-scale-room.jpg": "5c02578d81946bf2",
+  "public/images/projects/bioreact-ar/passthrough-vessel-top.jpg": "80bf79e719022373",
+  "public/images/projects/bioreact-ar/ui-component-gauge.jpg": "7494891e5b14822a",
+  "public/images/projects/bioreact-ar/ui-component-screen.jpg": "33d38c8829465615"
 }
