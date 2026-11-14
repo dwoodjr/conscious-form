@@ -3,6 +3,9 @@
 ---
 
 <script>
+  // Sound is off. Set to true to turn the name tones back on.
+  const SOUND_ENABLED = false;
+
   let audioContext: AudioContext | null = null;
 
   function getAudioContext(): AudioContext {
@@ -11,18 +14,24 @@
   }
 
   // Resume AudioContext on first pointer press anywhere — no extra "activation click" needed
-  document.addEventListener('pointerdown', () => getAudioContext().resume(), { once: true });
+  if (SOUND_ENABLED) {
+    document.addEventListener('pointerdown', () => getAudioContext().resume(), { once: true });
+  }
 
   const envelope = {
     attack: 0.005,
     decay: 0.3,
     sustain: 0.8,
     release: 0.5,
-    peak: 0.12,
+    peak: 0.035, // was 0.12; overlapping notes add up, so keep this low
   };
 
   function playTone(frequency: number, gainScale: number = 1.0) {
+    if (!SOUND_ENABLED) return;
     const ctx = getAudioContext();
+    // Before the first click the browser keeps audio paused. Tones scheduled then
+    // would queue up and all play at once on that click, so skip them instead.
+    if (ctx.state !== 'running') return;
     const now = ctx.currentTime;
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
