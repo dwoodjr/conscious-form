@@ -4,6 +4,7 @@ description: "Course projects in animation and simulation, made in Houdini and U
 date: 2024-06-01
 tags: ["animation", "3d", "houdini", "unreal", "simulation", "visual"]
 type: "coursework"
+thumbnail: "https://i.vimeocdn.com/video/2156131299-81e9dd12d16de2151a338500e8acabbb82482a88db92d9ac5cb2285c00762655-d_1280?region=us"
 videos:
   - type: "vimeo"
     id: "1191189737"
@@ -24,6 +25,8 @@ Animation and simulation projects made for courses between 2022 and 2024. *Jedi 
 - Houdini (FX, simulation, procedural animation)
 - Unreal Engine (real-time rendering, environments)
 - Unity
+- Redshift (rendering)
+- Reaper and Phase Plant (sound design)
 
 ## My work on these
 

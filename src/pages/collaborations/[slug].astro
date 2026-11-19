@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import VideoEmbed from '../../components/VideoEmbed.astro';
 import ImageGallery from '../../components/ImageGallery.astro';
 import AtAGlance from '../../components/AtAGlance.astro';
+import SplatViewer from '../../components/SplatViewer.astro';
 
 export async function getStaticPaths() {
   const collaborations = await getCollection('collaborations');
@@ -51,8 +52,25 @@ const when = collab.data.when ?? new Date(collab.data.date).toLocaleDateString('
       </div>
     </header>
 
+    {/* 3D splat, with the thumbnail as its poster */}
+    {collab.data.splat && (
+      <div class="mb-8">
+        <SplatViewer
+          src={collab.data.splat.src}
+          poster={collab.data.thumbnail}
+          alt={collab.data.title}
+          caption={collab.data.splat.caption}
+          aspect={collab.data.splat.aspect ?? '16 / 9'}
+          azimuth={collab.data.splat.azimuth}
+          polar={collab.data.splat.polar}
+          rotation={collab.data.splat.rotation}
+          distance={collab.data.splat.distance}
+        />
+      </div>
+    )}
+
     {/* Thumbnail - ALWAYS show */}
-    {collab.data.thumbnail && (
+    {!collab.data.splat && collab.data.thumbnail && (
       <div class="mb-8">
         <img
           src={collab.data.thumbnail}

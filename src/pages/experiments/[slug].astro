@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import VideoEmbed from '../../components/VideoEmbed.astro';
 import ImageGallery from '../../components/ImageGallery.astro';
+import SplatViewer from '../../components/SplatViewer.astro';
 
 export async function getStaticPaths() {
   const experimentItems = await getCollection('experiments');
@@ -46,8 +47,25 @@ const hasImages = item.data.images && item.data.images.length > 0;
       </time>
     </header>
 
+    {/* 3D splat, with the thumbnail as its poster */}
+    {item.data.splat && (
+      <div class="mb-8">
+        <SplatViewer
+          src={item.data.splat.src}
+          poster={item.data.thumbnail}
+          alt={item.data.title}
+          caption={item.data.splat.caption}
+          aspect={item.data.splat.aspect ?? '4 / 3'}
+          azimuth={item.data.splat.azimuth}
+          polar={item.data.splat.polar}
+          rotation={item.data.splat.rotation}
+          distance={item.data.splat.distance}
+        />
+      </div>
+    )}
+
     {/* Thumbnail if available */}
-    {item.data.thumbnail && (
+    {!item.data.splat && item.data.thumbnail && (
       <div class="mb-8">
         <img 
           src={item.data.thumbnail} 

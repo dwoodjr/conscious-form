@@ -1,0 +1,243 @@
+---
+// Gaussian splat viewer. The splat takes over from the poster image on its own once the viewer nears the screen;
+// the poster stays as the fallback (no WebGL2, a failed load, or Save-Data on, where a button offers the 3D view).
+//
+// Spark and three.js live in /public/vendor (same versions as the score space). They are imported through a
+// Function so Vite's dev server leaves the request alone: Vite refuses to transform files in /public.
+// Orbit is limited so single-image splats, which fall apart seen from the side, stay readable.
+interface Props {
+  src: string;               // .spz (or .ply) under /public
+  poster?: string;           // image shown until the splat is ready, and the fallback
+  alt?: string;
+  caption?: string;
+  aspect?: string;           // CSS aspect-ratio, e.g. "1 / 1" or "4 / 5"
+  shape?: 'rounded' | 'circle';
+  azimuth?: number;          // degrees the camera may turn left and right of the front
+  polar?: number;            // degrees it may tilt up and down
+  rotation?: number[];       // [x, y, z] degrees applied to the splat, to face it toward the camera
+  distance?: number;         // camera distance; splats are exported with their longest side at 1
+  class?: string;
+}
+
+const {
+  src,
+  poster,
+  alt = '',
+  caption,
+  aspect = '4 / 5',
+  shape = 'rounded',
+  azimuth = 35,
+  polar = 20,
+  rotation = [0, 0, 0],
+  distance = 1.9,
+  class: className = '',
+} = Astro.props;
+---
+
+<figure
+  class:list={['splat-viewer', `splat-viewer--${shape}`, className]}
+  data-splat-viewer
+  data-src={src}
+  data-azimuth={azimuth}
+  data-polar={polar}
+  data-rotation={rotation.join(',')}
+  data-distance={distance}
+>
+  <div class="sv-stage" style={`aspect-ratio: ${aspect};`}>
+    {poster ? <img class="sv-poster" src={poster} alt={alt} /> : <div class="sv-poster sv-poster--empty"></div>}
+    <div class="sv-canvas" aria-hidden="true"></div>
+    <p class="sv-status" aria-live="polite"></p>
+  </div>
+  <button type="button" class="sv-optin" hidden>
+    <span class="sv-optin-icon" aria-hidden="true">◇</span>View in 3D
+  </button>
+  {caption && <figcaption class="sv-caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .splat-viewer { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+  .sv-stage {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    border-radius: 12px;
+  }
+  .splat-viewer--circle .sv-stage { border-radius: 999px; }
+  .sv-poster, .sv-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sv-poster { object-fit: cover; transition: opacity 0.6s ease; }
+  .sv-poster--empty { background: radial-gradient(circle, #1f1f1f, #0d0d0d); }
+  .sv-canvas { opacity: 0; transition: opacity 0.6s ease; touch-action: pan-y; }
+  .sv-canvas :global(canvas) { display: block; width: 100% !important; height: 100% !important; cursor: grab; }
+  .sv-canvas :global(canvas:active) { cursor: grabbing; }
+  .splat-viewer.is-3d .sv-canvas { opacity: 1; }
+  .splat-viewer.is-3d .sv-poster { opacity: 0; }
+  .sv-status {
+    position: absolute; left: 0; right: 0; bottom: 0.75rem; margin: 0;
+    text-align: center; font-size: 0.72rem; letter-spacing: 0.06em; color: #a3a3a3;
+    pointer-events: none; transition: opacity 0.6s ease;
+  }
+  .sv-status:empty { opacity: 0; }
+
+  .sv-optin {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; color: #d4d4d4;
+    background: #141414; border: 1px solid #333; border-radius: 999px;
+    padding: 0.3rem 0.85rem; cursor: pointer;
+  }
+  .sv-optin[hidden] { display: none; }
+  .sv-optin:hover { border-color: #737373; color: #fafafa; }
+  .sv-optin:focus-visible { outline: 2px solid #3B82F6; outline-offset: 2px; }
+  .sv-optin-icon { color: #F4D03F; }
+
+  .sv-caption { font-size: 0.78rem; color: #737373; line-height: 1.5; text-align: center; max-width: 32rem; }
+</style>
+
+<script>
+  type Lib = { THREE: any; OrbitControls: any; SplatMesh: any; SparkRenderer: any };
+
+  // A plain browser import, out of Vite's sight. Vite rewrites import() calls in source and then refuses to
+  // serve /public files through them; a Function body is never rewritten.
+  const browserImport = new Function('url', 'return import(url)') as (url: string) => Promise<any>;
+
+  let libPromise: Promise<Lib> | null = null;
+  function loadLib(): Promise<Lib> {
+    if (!libPromise) {
+      const base = new URL('/vendor/', window.location.origin).href;
+      libPromise = Promise.all([
+        browserImport(base + 'three/three.module.min.js'),
+        browserImport(base + 'three/addons/controls/OrbitControls.js'),
+        browserImport(base + 'spark/spark.module.min.js'),
+      ]).then(([THREE, orbit, spark]) => ({
+        THREE,
+        OrbitControls: orbit.OrbitControls,
+        SplatMesh: spark.SplatMesh,
+        SparkRenderer: spark.SparkRenderer,
+      }));
+    }
+    return libPromise;
+  }
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = !!(navigator as any).connection?.saveData;
+
+  function webglAvailable(): boolean {
+    try {
+      return !!document.createElement('canvas').getContext('webgl2');
+    } catch {
+      return false;
+    }
+  }
+
+  function setup(fig: HTMLElement) {
+    if (!webglAvailable()) return; // the poster is the whole viewer
+
+    const stage = fig.querySelector<HTMLElement>('.sv-stage')!;
+    const holder = fig.querySelector<HTMLElement>('.sv-canvas')!;
+    const status = fig.querySelector<HTMLElement>('.sv-status')!;
+    const optin = fig.querySelector<HTMLButtonElement>('.sv-optin')!;
+
+    const az = (Number(fig.dataset.azimuth) || 35) * Math.PI / 180;
+    const pol = (Number(fig.dataset.polar) || 20) * Math.PI / 180;
+    const dist = Number(fig.dataset.distance) || 1.9;
+    const rot = (fig.dataset.rotation ?? '0,0,0').split(',').map(n => (Number(n) || 0) * Math.PI / 180);
+
+    let started = false;
+    let visible = false;
+    let renderer: any = null;
+    let tick: (() => void) | null = null;
+    const loop = () => renderer?.setAnimationLoop(visible ? tick : null);
+
+    async function start() {
+      if (started) return;
+      started = true;
+      optin.hidden = true;
+      try {
+        const { THREE, OrbitControls, SplatMesh, SparkRenderer } = await loadLib();
+
+        renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+        holder.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
+        camera.position.set(0, 0, dist);
+
+        scene.add(new SparkRenderer({ renderer }));
+        const splat = new SplatMesh({ url: new URL(fig.dataset.src!, window.location.origin).href });
+        splat.rotation.set(rot[0], rot[1], rot[2]);
+        scene.add(splat);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enablePan = false;
+        controls.enableZoom = false; // the wheel keeps scrolling the page
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.minAzimuthAngle = -az;
+        controls.maxAzimuthAngle = az;
+        controls.minPolarAngle = Math.PI / 2 - pol;
+        controls.maxPolarAngle = Math.PI / 2 + pol;
+
+        // Idle sway: when nobody is dragging, the camera drifts slowly across the allowed arc.
+        let lastInput = performance.now();
+        let dragging = false;
+        controls.addEventListener('start', () => { dragging = true; status.textContent = ''; });
+        controls.addEventListener('end', () => { dragging = false; lastInput = performance.now(); });
+        const spherical = new THREE.Spherical();
+        const offset = new THREE.Vector3();
+
+        const size = () => {
+          const w = stage.clientWidth, h = stage.clientHeight;
+          if (!w || !h) return;
+          renderer.setSize(w, h, false);
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+        };
+        new ResizeObserver(size).observe(stage);
+        size();
+
+        tick = () => {
+          const now = performance.now();
+          if (!reducedMotion && !dragging && now - lastInput > 1500) {
+            offset.copy(camera.position).sub(controls.target);
+            spherical.setFromVector3(offset);
+            const goal = Math.sin(now * 0.00035) * az * 0.6;
+            spherical.theta += (goal - spherical.theta) * 0.02;
+            offset.setFromSpherical(spherical);
+            camera.position.copy(controls.target).add(offset);
+          }
+          controls.update();
+          renderer.render(scene, camera);
+        };
+
+        await splat.initialized;
+        loop();
+        fig.classList.add('is-3d');
+        holder.setAttribute('aria-hidden', 'false');
+        status.textContent = 'Drag to turn';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      } catch (err) {
+        // the poster stays; nothing else changes on the page
+        console.warn('Splat viewer did not load:', err);
+        if (renderer) { renderer.setAnimationLoop(null); renderer.domElement.remove(); renderer.dispose(); renderer = null; }
+        fig.classList.remove('is-3d');
+      }
+    }
+
+    // Load as the viewer nears the screen; run the render loop only while it is on screen.
+    new IntersectionObserver(entries => {
+      visible = entries[0].isIntersecting;
+      if (visible && !started && !saveData) start();
+      loop();
+    }, { rootMargin: '200px' }).observe(stage);
+
+    if (saveData) {
+      optin.hidden = false;
+      optin.addEventListener('click', start);
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-splat-viewer]').forEach(setup);
+</script>

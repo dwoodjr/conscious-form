@@ -5,6 +5,7 @@ import VideoEmbed from '../../components/VideoEmbed.astro';
 import ImageGallery from '../../components/ImageGallery.astro';
 import SeriesNav from '../../components/SeriesNav.astro';
 import AtAGlance from '../../components/AtAGlance.astro';
+import SplatViewer from '../../components/SplatViewer.astro';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -77,8 +78,25 @@ const when = project.data.when ?? new Date(project.data.date).toLocaleDateString
       <SeriesNav current={project} siblings={seriesProjects} seriesHref={seriesHref!} />
     )}
 
+    {/* 3D splat, with the thumbnail as its poster */}
+    {project.data.splat && (
+      <div class="mb-8">
+        <SplatViewer
+          src={project.data.splat.src}
+          poster={project.data.thumbnail}
+          alt={project.data.title}
+          caption={project.data.splat.caption}
+          aspect={project.data.splat.aspect ?? '16 / 9'}
+          azimuth={project.data.splat.azimuth}
+          polar={project.data.splat.polar}
+          rotation={project.data.splat.rotation}
+          distance={project.data.splat.distance}
+        />
+      </div>
+    )}
+
     {/* Thumbnail - ALWAYS show if it exists */}
-    {project.data.thumbnail && (
+    {!project.data.splat && project.data.thumbnail && (
       <div class="mb-8">
         <img
           src={project.data.thumbnail}

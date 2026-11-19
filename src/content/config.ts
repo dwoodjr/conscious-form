@@ -1,5 +1,16 @@
 import { defineCollection, z } from 'astro:content';
 
+// Optional Gaussian splat shown in a click-to-load 3D viewer (see components/SplatViewer.astro)
+const splatSchema = z.object({
+  src: z.string(),                                   // e.g. "/splats/multi-piezo-hydrophone.spz"
+  caption: z.string().optional(),
+  aspect: z.string().optional(),                     // CSS aspect-ratio, e.g. "4 / 3"
+  azimuth: z.number().optional(),                    // degrees of left-right turn allowed
+  polar: z.number().optional(),                      // degrees of up-down tilt allowed
+  rotation: z.array(z.number()).length(3).optional(), // [x, y, z] degrees
+  distance: z.number().optional(),
+}).optional();
+
 // Reusable video schema (single video entry)
 const videoSchema = z.object({
   type: z.enum(['youtube', 'vimeo']),
@@ -22,6 +33,7 @@ const projects = defineCollection({
     order: z.number().optional(),
     videos: z.array(videoSchema).optional(),      // Multiple videos
     images: z.array(z.string()).optional(),        // Image gallery paths
+    splat: splatSchema,
     mediaTypes: z.array(z.enum([
       'sound', '3d', 'video', 'interactive',
       'physical-computing', 'ar-vr', 'installation'
@@ -66,6 +78,7 @@ const collaborations = defineCollection({
     videos: z.array(videoSchema).optional(),
     images: z.array(z.string()).optional(),
     document: z.string().optional(),
+    splat: splatSchema,
     thumbnailCredit: z.object({
       name: z.string(),
       url: z.string().optional(),
@@ -92,6 +105,7 @@ const experiments = defineCollection({
     images: z.array(z.string()).optional(),
     relatedTo: z.array(z.string()).optional(),
     relatedProjects: z.array(z.string()).optional(),
+    splat: splatSchema,
   }),
 });
 
