@@ -62,7 +62,9 @@ const blue = '#3B82F6';
 ---
 
 <BaseLayout title="Darren Woodland, Jr. | Conscious Form">
-  <section class="min-h-screen relative">
+  <!-- overflow-clip keeps the name letters' oversized hit area (Linefont's tall
+       glyph metrics) from reaching up into the header and stealing nav clicks. -->
+  <section class="min-h-screen relative overflow-clip">
 
     <!-- MASSIVE name - centered -->
     <div class="min-h-screen flex items-center justify-center">
@@ -124,8 +126,8 @@ const blue = '#3B82F6';
     <div class="text-center mb-16 px-4">
       <h2 class="text-3xl text-neutral-400 mb-4">Darren Woodland, Jr.</h2>
       <p class="text-xl text-neutral-400 mb-8 max-w-2xl mx-auto">
-        I design interactive experiences, immersive environments, and live
-        performance systems where technology, physical space, and people meet.
+        I build real-time 3D, XR and sensor-driven systems, from a VR film at SXSW
+        to an instrument that listens to dissolving earth.
       </p>
       
       <!-- Dots at bottom -->

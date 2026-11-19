@@ -1,6 +1,6 @@
 ---
 title: "Dissolution Studies"
-description: "Granular experiments with DIY hydrophones — recording objects dissolving in water as material for synthesis and sound sculpture."
+description: "Granular experiments with DIY hydrophones: recordings of objects dissolving in water, used as material for synthesis and sound sculpture."
 date: 2025-02-01
 tags: ["sound", "synthesis", "audio", "max"]
 type: "experiment"
@@ -10,7 +10,7 @@ relatedTo: ["instrument-building-pickled-hydrophone", "instrument-building-multi
 relatedProjects: ["sun-ra-cryosleep"]
 ---
 
-Granular synthesis built from hydrophone recordings of objects dissolving: sugar, salt, clay, wax in water. Each material yields a distinct texture — the physics of dissolution as a scoring parameter. These studies feed directly into *Did Sun Ra Fear Cryosleep?*
+Granular synthesis built from hydrophone recordings of objects dissolving: sugar, salt, clay, wax in water. Each material yields a distinct texture, and I use the physics of dissolution as a scoring parameter. These studies feed directly into *Did Sun Ra Fear Cryosleep?*
 
 ## Process
 

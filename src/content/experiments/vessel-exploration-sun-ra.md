@@ -1,6 +1,6 @@
 ---
 title: "Vessel Explorations"
-description: "Pencil sketches exploring the form of the dissolution vessel for Did Sun Ra Fear Cryosleep? — organic, pod-like, and mechanical container geometries."
+description: "Pencil sketches of the dissolution vessel for Did Sun Ra Fear Cryosleep?, trying pod-like, organic and mechanical forms."
 date: 2025-03-01
 tags: ["visual", "sketch", "design"]
 type: "sketch"
@@ -10,4 +10,4 @@ images:
 relatedProjects: ["sun-ra-cryosleep"]
 ---
 
-Form-finding sketches for the physical vessel used in *Did Sun Ra Fear Cryosleep?* — the container into which objects are submerged and dissolved. Exploring a range of geometries: elongated pods, compound curved shells, hexagonal forms, nested chambers. The vessel is both a functional hydrophone housing and a ritual object, so its shape needs to hold that conceptual weight.
+Form-finding sketches for the vessel in *Did Sun Ra Fear Cryosleep?*, the container where the orbs are submerged and dissolve. The sketches try elongated pods, compound curved shells, hexagonal forms and nested chambers. The vessel houses the hydrophone and is also a ritual object, so its shape has to work as both.

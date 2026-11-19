@@ -27,6 +27,12 @@ const projects = defineCollection({
       'physical-computing', 'ar-vr', 'installation'
     ])).optional(),
     status: z.enum(['complete', 'in-progress', 'archived']).default('complete'),
+    // "At a glance" strip (all optional)
+    role: z.string().optional(),
+    partner: z.string().optional(),
+    when: z.string().optional(),     // display override, e.g. "2021-2022"; falls back to date
+    venue: z.string().optional(),
+    tools: z.array(z.string()).optional(),
     dissertation: z.boolean().default(false),
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
@@ -51,6 +57,10 @@ const collaborations = defineCollection({
     thumbnail: z.string().optional(),
     partner: z.string(),
     role: z.string(),
+    // "At a glance" strip (all optional)
+    when: z.string().optional(),     // display override; falls back to date
+    venue: z.string().optional(),
+    tools: z.array(z.string()).optional(),
     featured: z.boolean().default(false),
     order: z.number().optional(),
     videos: z.array(videoSchema).optional(),

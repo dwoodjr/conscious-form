@@ -1,6 +1,6 @@
 ---
 title: "Multi-Piezo Array Hydrophone"
-description: "Cylindrical acrylic tube housing multiple piezo elements — a more sensitive, directional underwater microphone for capturing the texture of dissolution."
+description: "An experimental hydrophone: several piezo elements spaced along a clear acrylic tube, for a more sensitive, directional pickup."
 date: 2026-04-01
 tags: ["sound", "physical-computing", "audio"]
 type: "experiment"
@@ -19,6 +19,6 @@ relatedTo: ["dissolution-studies", "instrument-building-pickled-hydrophone"]
 relatedProjects: ["sun-ra-cryosleep"]
 ---
 
-Second-generation hydrophone: a clear acrylic tube with multiple piezo elements spaced along its length, 3D-printed end caps, and a balanced XLR output stage. The array picks up spatial variation in pressure — different positions along a dissolving object register as subtly distinct textures.
+A second experimental build: a clear acrylic tube with several piezo elements spaced along its length, 3D-printed end caps, and a balanced XLR output stage. Spacing the elements lets the array pick up spatial variation in pressure, so different positions along a dissolving object register as slightly different textures.
 
-Built for the FringeArts and UC Riverside presentations of *Did Sun Ra Fear Cryosleep?*
+It is not stable enough to perform with yet. *Did Sun Ra Fear Cryosleep?* uses a separate JFET hydrophone.

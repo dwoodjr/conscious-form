@@ -1,6 +1,6 @@
 ---
 title: "Pickled Hydrophone"
-description: "DIY contact microphone built into a sealed plastic jar — a waterproofed preamp assembly for recording dissolution events underwater."
+description: "An early test hydrophone: a piezo disc and a small preamp PCB sealed inside a plastic jar."
 date: 2025-01-10
 tags: ["sound", "physical-computing", "audio"]
 type: "experiment"
@@ -16,6 +16,6 @@ relatedTo: ["dissolution-studies", "instrument-building-multi-piezo-hydrophone"]
 relatedProjects: ["sun-ra-cryosleep"]
 ---
 
-A low-cost hydrophone built around a small preamp PCB sealed inside a transparent plastic jar. The jar body acts as the pressure vessel; piezo disc adhered to the inside face picks up waterborne vibrations. Sealed with epoxy putty and electrical tape, then tested in a water bath with dissolving materials.
+A low-cost hydrophone built around a small preamp PCB sealed inside a transparent plastic jar. The jar body is the pressure vessel, and a piezo disc adhered to its inside face picks up waterborne vibration. I sealed it with epoxy putty and electrical tape, then tested it in a water bath with dissolving materials.
 
-First functional prototype for the dissolution recording sessions that feed *Did Sun Ra Fear Cryosleep?*
+I built it while learning how hydrophones work. It is too experimental to perform with; *Did Sun Ra Fear Cryosleep?* uses a separate JFET hydrophone.

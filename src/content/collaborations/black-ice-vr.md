@@ -1,11 +1,14 @@
 ---
 title: "Black Ice VR"
-description: "A cyberpunk VR cinema experience in which a single user steps into the role of a memory slicer, uncovering the story of a girl named Rin one extracted memory at a time."
+description: "A single-viewer cyberpunk VR film. You play a memory slicer, extracting a young woman's memories one at a time to learn what she wants erased."
 date: 2022-03-15
 tags: ["collaboration", "VR", "narrative", "cyberpunk", "spatial audio", "motion capture", "Unreal Engine", "interactive"]
 thumbnail: "/images/collaborations/black-ice-vr/black-ice-splash.jpg"
-partner: "UNCSA METL"
-role: "Art Direction · Creative Technology · Spatial Audio Design · Environment Design · Motion Capture"
+partner: "Arif Khan and Lawrence Yip, UNCSA METL Immersive Storytelling Residency"
+role: "Art Director, Technical Artist"
+when: "2021–2022"
+venue: "SECCA · SXSW 2022 · SIGGRAPH 2022 VR Theater · Bucheon (BIFAN) 2022"
+tools: ["Unreal Engine", "Wwise", "Vicon", "Maya", "Quest 2", "Perforce"]
 featured: true
 thumbnailCredit:
   name: "Poster design and artwork by Dead Seagull"
@@ -25,65 +28,51 @@ images:
   - "/images/collaborations/black-ice-vr/screenshot-unreal.png"
 ---
 
-## Overview
+*Black Ice* is a single-viewer cyberpunk VR film. In its near future, memory editing is a paid service, and a young woman, Rin, comes to a slicer's parlor wanting one memory gone. You are the slicer, working through her memories one extraction at a time until you learn what she wants erased, and why.
 
-Black Ice VR is a cyberpunk horror/thriller VR cinema experience for Meta Quest and Pico VR.
-In a near future where memory editing is a service you can hire for, a young girl named Rin
-arrives at a memory slicer's parlor asking to have something removed. As the user, you are
-that slicer. You move through sequences of her memories, extracting details and reliving
-moments, until the full weight of what she is asking — and who she actually is — becomes clear.
+We made it in six months at the UNCSA Media and Emerging Technology Lab's Immersive Storytelling Residency. SXSW picked it as one of 29 pieces for its 2022 XR Experience, the first UNCSA film the festival accepted.
 
-The experience was shown at SXSW, SIGGRAPH, and Bucheon International Fantastic Film Festival.
-At SXSW we ran three headsets simultaneously at the booth to manage throughput while keeping
-each playthrough a single-user, private experience.
+## My role
 
-## Concept and Approach
+Three of us formed the core team. Arif Khan directed, wrote and produced. Lawrence Yip was lead engine developer: he brought every asset into Unreal, programmed the mechanics, got the headset working, and wrote and optimized the cel shader. He also set up our Perforce server and introduced Arif and me to version control; Perforce is the system I now administer for Drexel's digital media programs. As art director and technical artist, I designed, modeled and sourced the assets and built the materials, set up Wwise and implemented all of the audio, co-directed the motion capture with Arif, and cleaned, retargeted and implemented the animation. He and I split the Blueprint work for animation and Sequencer.
 
-The design challenge was making a linear narrative feel like genuine investigation. Rather
-than passive viewing, each sequence was structured as an act of extraction: the user does
-something to access a memory, not just watches it play. This kept the framing of "you are
-the slicer" active throughout, rather than collapsing into spectator mode.
+Our target was the standalone Quest 2. Keeping the frame rate up on that hardware meant retopologizing models, merging meshes and consolidating materials.
 
-Spatial audio was central to how the story was told. Different memory states had distinct
-sonic environments designed in Wwise with layered spatialization, so the user could feel
-the emotional register of each memory before the visuals fully resolved. Interactive music
-states shifted in real time based on where the user was in the sequence.
+## Sound
 
-The environments were built to reinforce the sense of accessing something that was not meant
-to be seen. Lighting, geometry, and audio all leaned into the clinical aesthetic of the
-memory slicer's space versus the warmer, more fractured quality of Rin's memories.
+Four memory states organize the audio, down from the six we planned. Sequencer drives most state changes; memory-editing interactions and triggers on the player's position drive the rest. In the office scene, sound sources attached to animated objects move through the space outside it, with attenuation and falloff tuned so the world outside sounds occupied.
 
-## Production
+I mixed for headphones. Our first public showing, at SECCA in Winston-Salem, put several headsets on visitors at once, all of them in headphones, and some on the team pushed back because the Quest's built-in speakers no longer matched. I kept the mix: exhibitions would play the piece through headphones, and most Quest owners listen through earbuds anyway.
 
-Art directed the full production and served as creative and technical lead across all
-disciplines. Designed and built all virtual environments in Unreal Engine, and sourced
-and created hundreds of production assets across character models, props, audio, and video.
+## Motion capture
 
-Designed and implemented all spatial audio systems using Wwise and Unreal blueprints,
-including 3D spatialization, interactive music layering, and real-time audio state
-management. The spatial audio work was covered in a post for the [Audiokinetic blog](https://www.audiokinetic.com/en/library/edge/?source=Blog&id=cybernetic_thrills_black_ice_vr).
+Over two near-full-day sessions on UNCSA's Vicon stage, Grace Mori performed Rin in full-body capture. Matching the physical stage to the virtual set was the hardest part. Working from measurements in the Maya scenes, I taped the layout on the floor and gathered props at comparable scale, so contact points lined up on the day and cleanup stayed manageable.
 
-Co-directed motion capture sessions at the UNCSA Vicon space, including setup for real-time
-scene reconstruction. Performed all mocap cleanup, retargeting, and animation integration.
-Sequenced the final experience across animation, music, and visuals, and designed visual
-effects throughout.
+## The extraction mechanic
 
-## Exhibitions
+The slicer's job had to feel like labor. At the editing desk you pick up a piece of black ice, consume it, and push a lever to start the loading sequence. Inside a memory you handle objects to pull out pieces of it and uncover what Rin is hiding.
 
-- SXSW — Austin, TX, 2022
-- SIGGRAPH — 2022
-- Bucheon International Fantastic Film Festival — Bucheon, South Korea, 2022
-- Pico VR Platform — 2022
+## Problems
 
-## Press
+Sequencer timing drifted: small shifts pulled animation and audio cues out of sync, and fixing one sequence could knock the next one out. At SXSW, COVID-era sanitation slowed us down, with every headset going through a UV station and a wipe-down after each viewer. Sessions lasted close to thirty minutes, and our slots stayed full.
 
-- [IMDB](https://www.imdb.com/title/tt17718160/)
-- [Audiokinetic Blog — Cybernetic Thrills: The Audio and Visuals of Black Ice VR](https://www.audiokinetic.com/zh/community/blog/cybernetic-thrills-the-audio-and-visuals-of-black-ice-vr/)
-- [Pico VR](https://www.picoxr.com/global/games/black-ice-vr)
-- [UNCSA News — VR Film at SXSW](https://www.uncsa.edu/news/20220202-vr-film-at-sxsw.aspx)
+It was a blast to work on. The pace was intense, and I got my hands into more phases of cinema and VR production than I would have anywhere else.
 
-## Role
+## Credits
 
-Art Direction · Creative Technology · Spatial Audio Design (Wwise + Unreal Blueprints) ·
-Environment Design · Asset Production · Motion Capture Direction · Animation Integration ·
-Visual Effects · Production Sequencing
+- Arif Khan: director, writer, producer
+- Lawrence Yip: lead engine developer, Perforce administration
+- Darren Woodland Jr.: art director, technical artist
+- Matt Hill (as Umberto): composer
+- Ajeng Canyarasmi and Andrew Vernon: sound design
+- Hana Wu: Rin Kobayashi
+- Grace Mori (as Grace Woosley): Rin, motion capture
+
+Mentors included Ryan Schmaltz (METL director), Bob Keen and Navid Khonsari. Full cast and crew are on [IMDb](https://www.imdb.com/title/tt17718160/fullcredits/).
+
+## Links
+
+- [Audiokinetic blog: Cybernetic Thrills, The Audio and Visuals of Black Ice VR](https://www.audiokinetic.com/en/library/edge/?source=Blog&id=cybernetic_thrills_black_ice_vr)
+- [UNCSA News: VR film selected for SXSW](https://www.uncsa.edu/news/20220202-vr-film-at-sxsw.aspx)
+- [SIGGRAPH 2022 VR Theater program announcement](https://www.prnewswire.com/news-releases/discover-unique-storytelling-and-exquisite-visual-styling-at-the-siggraph-2022-vr-theater-program-301590571.html)
+- [Pico store listing](https://www.picoxr.com/global/games/black-ice-vr)

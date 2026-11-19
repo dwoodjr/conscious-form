@@ -1,16 +1,19 @@
 ---
 title: "Echoes of Harmonic Threads"
-description: "A real-time performance installation and designer-dancer workshop exploring the intersection of movement, sound, and technology."
+description: "A designer-dancer workshop on mapping movement to sound, presented at the Ars Electronica 2023 Expanded Animation Symposium."
 date: 2023-09-06
-tags: ["installation", "sound", "performance", "workshop", "collaboration"]
+tags: ["sound", "performance", "workshop", "collaboration", "presentation"]
 thumbnail: "/images/projects/harmonic-threads/harmonic-threads-thumb.png"
 featured: true
 status: "complete"
-mediaTypes: ["sound", "installation", "interactive"]
+role: "Workshop design, interaction design, development, audio"
+when: "September 2023"
+venue: "Ars Electronica 2023, Linz (Expanded Animation Symposium)"
+mediaTypes: ["sound", "interactive"]
 videos:
   - type: "youtube"
     id: "60H0SBRRQTg"
-    title: "Ars Electronica 2023 - Live Stream (our segment starts at 38:03)"
+    title: "Ars Electronica 2023 livestream (our segment starts at 38:03)"
     start: 2283
     end: 4684
 images:
@@ -20,28 +23,12 @@ images:
   - "/images/projects/harmonic-threads/ars-2023-whoOwns-vertical.jpg"
 ---
 
-## Overview
+*Echoes of Harmonic Threads* began as a workshop pairing designers with dancers, built around a system that mapped a dancer's movement to sound. At Ars Electronica 2023 in Linz, Austria, I presented the work on September 9 in the Expanded Animation Symposium's Synaesthetic Syntax panel, under that year's festival theme, *Who Owns the Truth?* Video of the workshop played during the talk; our segment of the festival livestream starts at 38:03.
 
-A real-time performance installation and designer-dancer workshop exploring movement,
-sound, and technology. Presented at Ars Electronica 2023 in Linz, Austria under the
-theme Who Owns the Truth? as part of the Expanded Animation Symposium's Synaesthetic Syntax panel.
+## The system
 
-## Concept and Approach
+Gestural input came in live, and the system mapped it to a vocabulary of sounds. I avoided one-to-one mappings. A gesture kept its expressive character in the sound, and I layered rules of my own on top.
 
-The project started as a question about translation: what happens when a dancer's
-movement becomes the instrument? I designed a system that captured gestural input
-in real-time and mapped it to a sonic vocabulary. Not a literal one-to-one mapping,
-but one that kept the expressive character of the movement while introducing its own logic.
+## The workshop
 
-The workshop component was a core part of the design. Participants moved from audience
-to co-creators by learning how the system worked through their bodies. This meant the
-interaction model had to be discoverable without instruction: clear enough for a newcomer
-to start exploring immediately, and deep enough to reward continued engagement.
-
-## Context
-
-Presented at the Ars Electronica Center in Linz, Austria on September 9, 2023 as part of the Ars Electronica Festival for Art, Technology & Society (running from September 6-10, 2023).
-
-## Role
-
-Research · Collaboration · Art Direction · Interaction Design · Development · Audio Engineering
+Participants learned the system through their bodies and went from watching it to making sound with it. That set the design constraint: a newcomer had to find the interaction with no instruction, and a dancer who kept going had to keep finding more in it.

@@ -25,12 +25,25 @@ const referencedWorks = [
     .map(c => ({ slug: c.slug, data: c.data, href: `/collaborations/${c.slug}`, collectionType: 'collaboration' as const })),
 ];
 
-function getNodeColor(item: CollectionEntry<'experiments'>): string {
+type Category = 'sound' | 'visual' | 'code' | 'other';
+
+const CATEGORIES: { id: Category; label: string; color: string }[] = [
+  { id: 'sound', label: 'Sound', color: '#E63946' },
+  { id: 'visual', label: 'Visual', color: '#F4D03F' },
+  { id: 'code', label: 'Code / Interactive', color: '#3B82F6' },
+  { id: 'other', label: 'Other', color: '#e5e5e5' },
+];
+
+function getCategory(item: CollectionEntry<'experiments'>): Category {
   const tags = item.data.tags ?? [];
-  if (tags.some(t => ['sound', 'audio', 'synthesis', 'max'].includes(t))) return '#E63946';
-  if (tags.some(t => ['animation', '3d', 'visual', 'houdini', 'video', 'unreal'].includes(t))) return '#F4D03F';
-  if (tags.some(t => ['code', 'patch', 'interactive', 'web', 'physical-computing'].includes(t))) return '#3B82F6';
-  return '#e5e5e5';
+  if (tags.some(t => ['sound', 'audio', 'synthesis', 'max'].includes(t))) return 'sound';
+  if (tags.some(t => ['animation', '3d', 'visual', 'houdini', 'video', 'unreal'].includes(t))) return 'visual';
+  if (tags.some(t => ['code', 'patch', 'interactive', 'web', 'physical-computing'].includes(t))) return 'code';
+  return 'other';
+}
+
+function getNodeColor(item: CollectionEntry<'experiments'>): string {
+  return CATEGORIES.find(c => c.id === getCategory(item))!.color;
 }
 
 function getNodeRadius(index: number): number {
@@ -132,18 +145,109 @@ for (let i = 0; i < experimentNodes.length; i++) {
 
 const graphData = { nodes: graphNodes, links: [...explicitEdges, ...looseEdges] };
 const hasItems = sortedItems.length > 0;
+
+// ── List view data ───────────────────────────────────────────────────────
+const workTitles = new Map<string, { title: string; href: string }>(
+  referencedWorks.map(w => [w.slug, { title: w.data.title, href: w.href }]),
+);
+
+const typeLabels: Record<string, string> = {
+  experiment: 'Experiment',
+  coursework: 'Coursework',
+  sketch: 'Sketch',
+  demo: 'Demo',
+  animation: 'Animation',
+};
+
+const listItems = sortedItems.map(item => {
+  const category = getCategory(item);
+  const related = (item.data.relatedProjects ?? [])
+    .map(slug => workTitles.get(slug))
+    .find(Boolean);
+  return {
+    slug: item.slug,
+    href: `/experiments/${item.slug}`,
+    title: item.data.title,
+    description: item.data.description,
+    thumbnail: item.data.thumbnail ?? null,
+    category,
+    color: getNodeColor(item),
+    typeLabel: typeLabels[item.data.type] ?? item.data.type,
+    date: new Date(item.data.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', timeZone: 'UTC' }),
+    related: related ?? null,
+  };
+});
+
+const presentCategories = CATEGORIES.filter(c => listItems.some(i => i.category === c.id));
 ---
 
 <BaseLayout title="Experiments | Conscious Form">
 
-  <div class="sketchbook-wrapper">
+  <div id="experiments-root" class="sketchbook-wrapper" data-view="list">
 
     <div class="sketchbook-header">
-      <h1 class="text-4xl font-bold mb-1">Experiments</h1>
-      <p class="text-neutral-400 text-sm">
-        Experiments, explorations, ephemera. Click a node to explore.
-      </p>
+      <div class="header-row">
+        <div>
+          <h1 class="text-4xl font-bold mb-1">Experiments</h1>
+          <p class="text-neutral-400 text-sm">
+            Experiments, explorations, ephemera.<span class="graph-hint"> Click a node to open it.</span>
+          </p>
+        </div>
+        {hasItems && (
+          <div class="view-toggle" role="group" aria-label="Choose a view">
+            <button type="button" class="view-btn" data-view-btn="list" aria-pressed="true">List</button>
+            <button type="button" class="view-btn" data-view-btn="graph" aria-pressed="false">Graph</button>
+          </div>
+        )}
+      </div>
     </div>
+
+    <!-- List view (default) -->
+    <section id="list-view" aria-label="Experiments list">
+      {hasItems ? (
+        <>
+          {presentCategories.length > 1 && (
+            <div class="filter-row" role="group" aria-label="Filter by category">
+              <button type="button" class="filter-chip" data-filter="all" aria-pressed="true">All</button>
+              {presentCategories.map(c => (
+                <button type="button" class="filter-chip" data-filter={c.id} aria-pressed="false">
+                  <span class="legend-dot" style={`background:${c.color}`}></span>{c.label}
+                </button>
+              ))}
+            </div>
+          )}
+          <ul class="card-grid">
+            {listItems.map(item => (
+              <li data-category={item.category}>
+                <a href={item.href} class="card">
+                  {item.thumbnail ? (
+                    <img src={item.thumbnail} alt="" loading="lazy" class="card-thumb" />
+                  ) : (
+                    <div class="card-thumb card-thumb--empty" style={`--accent:${item.color}`}></div>
+                  )}
+                  <div class="card-body">
+                    <p class="card-meta">
+                      <span class="legend-dot" style={`background:${item.color}`}></span>
+                      {item.typeLabel} · {item.date}
+                    </p>
+                    <h2 class="card-title">{item.title}</h2>
+                    <p class="card-desc">{item.description}</p>
+                    {item.related && (
+                      <p class="card-related">Related project: <em>{item.related.title}</em></p>
+                    )}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p class="empty-list">Nothing here yet.</p>
+      )}
+    </section>
+
+    <!-- Graph view (optional) -->
+    <section id="graph-view" aria-label="Experiments graph" hidden>
 
     <div id="graph-container">
       {hasItems ? (
@@ -181,6 +285,8 @@ const hasItems = sortedItems.length > 0;
       <span class="legend-item"><span class="legend-dot legend-dot--dashed" style="border-color:#a855f7"></span>Project</span>
     </div>
 
+    </section>
+
   </div>
 
 </BaseLayout>
@@ -203,6 +309,150 @@ const hasItems = sortedItems.length > 0;
   .sketchbook-header {
     flex-shrink: 0;
     margin-bottom: 0.75rem;
+  }
+
+  /* ── View modes ──────────────────────────────── */
+  .sketchbook-wrapper[data-view="list"] {
+    display: block;
+    height: auto;
+    overflow: visible;
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 4rem 1rem;
+  }
+  .sketchbook-wrapper[data-view="list"] .sketchbook-header { margin-bottom: 1.5rem; }
+  .sketchbook-wrapper[data-view="list"] .graph-hint { display: none; }
+
+  #graph-view:not([hidden]) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .header-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid #2e2e2e;
+    border-radius: 999px;
+    padding: 3px;
+    background: #0f0f0f;
+  }
+  .view-btn {
+    font-size: 0.8rem;
+    color: #8a8a8a;
+    background: none;
+    border: none;
+    border-radius: 999px;
+    padding: 0.3rem 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .view-btn:hover { color: #e5e5e5; }
+  .view-btn[aria-pressed="true"] { background: #262626; color: #fafafa; }
+  .view-btn:focus-visible, .filter-chip:focus-visible, .card:focus-visible {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+  }
+
+  /* ── List view ───────────────────────────────── */
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: #a3a3a3;
+    background: #141414;
+    border: 1px solid #262626;
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .filter-chip:hover { color: #e5e5e5; border-color: #404040; }
+  .filter-chip[aria-pressed="true"] { color: #fafafa; border-color: #737373; }
+
+  .card-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid #262626;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0d0d0d;
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .card:hover { border-color: #525252; transform: translateY(-2px); }
+
+  .card-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    display: block;
+    background: #141414;
+  }
+  .card-thumb--empty {
+    background:
+      radial-gradient(circle at 50% 50%, var(--accent) 0 5px, transparent 6px),
+      #141414;
+    opacity: 0.8;
+  }
+
+  .card-body { padding: 0.9rem 1rem 1.1rem; }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #737373;
+    margin-bottom: 0.4rem;
+  }
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #f5f5f5;
+    line-height: 1.3;
+    margin-bottom: 0.4rem;
+  }
+  .card-desc {
+    font-size: 0.85rem;
+    color: #8a8a8a;
+    line-height: 1.55;
+  }
+  .card-related {
+    font-size: 0.75rem;
+    color: #a855f7;
+    margin-top: 0.6rem;
+  }
+
+  .empty-list {
+    color: #525252;
+    font-style: italic;
   }
 
   #graph-container {
@@ -410,9 +660,13 @@ const hasItems = sortedItems.length > 0;
     __experimentsGraph: { nodes: NodeDatum[]; links: LinkDatum[] };
     __experimentsHasItems: boolean;
   };
-  if (!w.__experimentsHasItems) {
-    // no items — static empty state is already rendered
-  } else {
+  let graphStarted = false;
+  let hideGraphPanel: () => void = () => {};
+
+  // The graph only starts once its view is visible, so it measures its real size.
+  function initGraph() {
+    if (graphStarted || !w.__experimentsHasItems) return;
+    graphStarted = true;
     const { nodes, links } = w.__experimentsGraph;
 
     // ── DOM ───────────────────────────────────────────────────────────────
@@ -656,5 +910,44 @@ const hasItems = sortedItems.length > 0;
       sim.force('center', forceCenter<NodeDatum>(W / 2, H / 2).strength(0.05));
       sim.alpha(0.3).restart();
     });
+
+    hideGraphPanel = hidePanel;
   }
+
+  // ── View switching (list is the default) ─────────────────────────────
+  const root = document.getElementById('experiments-root');
+  const listView = document.getElementById('list-view');
+  const graphView = document.getElementById('graph-view');
+  const viewButtons = document.querySelectorAll<HTMLButtonElement>('[data-view-btn]');
+
+  function setView(view: 'list' | 'graph') {
+    if (!root || !listView || !graphView) return;
+    root.dataset.view = view;
+    listView.hidden = view !== 'list';
+    graphView.hidden = view !== 'graph';
+    viewButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.viewBtn === view)));
+    try { localStorage.setItem('experiments-view', view); } catch { /* storage unavailable */ }
+    if (view === 'graph') initGraph();
+    else hideGraphPanel();
+  }
+
+  viewButtons.forEach(b =>
+    b.addEventListener('click', () => setView(b.dataset.viewBtn === 'graph' ? 'graph' : 'list')),
+  );
+
+  let savedView: string | null = null;
+  try { savedView = localStorage.getItem('experiments-view'); } catch { /* storage unavailable */ }
+  const wanted = location.hash === '#graph' ? 'graph' : savedView;
+  setView(wanted === 'graph' ? 'graph' : 'list');
+
+  // ── Category filter (list view) ──────────────────────────────────────
+  const chips = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const cards = document.querySelectorAll<HTMLElement>('#list-view [data-category]');
+  chips.forEach(chip =>
+    chip.addEventListener('click', () => {
+      const f = chip.dataset.filter;
+      chips.forEach(c => c.setAttribute('aria-pressed', String(c === chip)));
+      cards.forEach(card => { card.hidden = f !== 'all' && card.dataset.category !== f; });
+    }),
+  );
 </script>

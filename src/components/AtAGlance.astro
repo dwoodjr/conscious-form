@@ -1,0 +1,30 @@
+---
+// Compact facts strip shown at the top of project and collaboration pages.
+// Every row is optional except When; empty rows are skipped.
+interface Props {
+  role?: string;
+  partner?: string;
+  when: string;
+  venue?: string;
+  tools?: string[];
+}
+
+const { role, partner, when, venue, tools } = Astro.props;
+
+const rows = [
+  { label: 'Role', value: role },
+  { label: 'With', value: partner },
+  { label: 'When', value: when },
+  { label: 'Where', value: venue },
+  { label: 'Built with', value: tools && tools.length ? tools.join(' · ') : undefined },
+].filter((row) => row.value);
+---
+
+<dl class="grid grid-cols-1 sm:grid-cols-[7rem_1fr] gap-x-6 gap-y-1 sm:gap-y-3 border border-neutral-800 rounded-lg px-5 py-4 mb-6 text-sm">
+  {rows.map((row) => (
+    <Fragment>
+      <dt class="text-xs uppercase tracking-widest text-neutral-500 sm:pt-0.5">{row.label}</dt>
+      <dd class="text-neutral-200 mb-3 sm:mb-0 leading-relaxed">{row.value}</dd>
+    </Fragment>
+  ))}
+</dl>
